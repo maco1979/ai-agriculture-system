@@ -1,0 +1,853 @@
+2026-01-04 04:01:38 - edge.edge_manager - INFO - edge_manager.py:375 - 边缘管理器已关闭
+2026-01-04 04:01:42 - system - INFO - logging_config.py:188 - 日志系统初始化完成，日志目录: D:\1.5\backend\src\logs
+2026-01-04 04:01:42 - system - INFO - logging_config.py:189 - 当前时间: 2026-01-04 04:01:42
+2026-01-04 04:01:42 - code_protection - INFO - code_protection.py:374 - 代码保护机制初始化完成
+2026-01-04 04:01:42 - system - INFO - logging_config.py:245 - 系统事件 - 类型: code_protection, 描述: 代码保护机制初始化完成, 时间: 2026-01-04 04:01:42
+2026-01-04 04:01:42 - code_protection - ERROR - code_protection.py:249 - 备份目录失败 D:\1.5\backend\src\src: [WinError 183] 当文件已存在时，无法创建该文件。: 'D:\\1.5\\backend\\src\\.code_backups\\initial_backup\\src'
+2026-01-04 04:01:42 - code_protection - INFO - code_protection.py:259 - 代码备份已创建: D:\1.5\backend\src\.code_backups\initial_backup
+2026-01-04 04:01:42 - system - INFO - logging_config.py:245 - 系统事件 - 类型: code_protection, 描述: 创建代码备份: initial_backup, 时间: 2026-01-04 04:01:42
+2026-01-04 04:01:42 - unified_exceptions - INFO - exceptions.py:301 - 统一异常处理机制已注册
+2026-01-04 04:01:42 - src.api - INFO - __init__.py:142 - 🛠️  CORS: 开发环境宽松模式
+2026-01-04 04:01:43 - edge.edge_manager - INFO - edge_manager.py:375 - 边缘管理器已关闭
+2026-01-04 04:01:49 - system - INFO - logging_config.py:188 - 日志系统初始化完成，日志目录: D:\1.5\backend\src\logs
+2026-01-04 04:01:51 - system - INFO - logging_config.py:189 - 当前时间: 2026-01-04 04:01:51
+2026-01-04 04:01:51 - code_protection - INFO - code_protection.py:374 - 代码保护机制初始化完成
+2026-01-04 04:01:51 - system - INFO - logging_config.py:245 - 系统事件 - 类型: code_protection, 描述: 代码保护机制初始化完成, 时间: 2026-01-04 04:01:51
+2026-01-04 04:01:51 - code_protection - ERROR - code_protection.py:249 - 备份目录失败 D:\1.5\backend\src\src: [WinError 183] 当文件已存在时，无法创建该文件。: 'D:\\1.5\\backend\\src\\.code_backups\\initial_backup\\src'
+2026-01-04 04:01:51 - code_protection - INFO - code_protection.py:259 - 代码备份已创建: D:\1.5\backend\src\.code_backups\initial_backup
+2026-01-04 04:01:51 - system - INFO - logging_config.py:245 - 系统事件 - 类型: code_protection, 描述: 创建代码备份: initial_backup, 时间: 2026-01-04 04:01:51
+2026-01-04 04:01:51 - unified_exceptions - INFO - exceptions.py:301 - 统一异常处理机制已注册
+2026-01-04 04:01:51 - src.api - INFO - __init__.py:142 - 🛠️  CORS: 开发环境宽松模式
+2026-01-04 04:01:54 - system - INFO - logging_config.py:188 - 日志系统初始化完成，日志目录: D:\1.5\backend\src\logs
+2026-01-04 04:01:54 - system - INFO - logging_config.py:189 - 当前时间: 2026-01-04 04:01:54
+2026-01-04 04:01:55 - code_protection - INFO - code_protection.py:374 - 代码保护机制初始化完成
+2026-01-04 04:01:55 - system - INFO - logging_config.py:245 - 系统事件 - 类型: code_protection, 描述: 代码保护机制初始化完成, 时间: 2026-01-04 04:01:55
+2026-01-04 04:01:55 - code_protection - ERROR - code_protection.py:249 - 备份目录失败 D:\1.5\backend\src\src: [WinError 183] 当文件已存在时，无法创建该文件。: 'D:\\1.5\\backend\\src\\.code_backups\\initial_backup\\src'
+2026-01-04 04:01:55 - code_protection - INFO - code_protection.py:259 - 代码备份已创建: D:\1.5\backend\src\.code_backups\initial_backup
+2026-01-04 04:01:55 - system - INFO - logging_config.py:245 - 系统事件 - 类型: code_protection, 描述: 创建代码备份: initial_backup, 时间: 2026-01-04 04:01:55
+2026-01-04 04:01:56 - unified_exceptions - INFO - exceptions.py:301 - 统一异常处理机制已注册
+2026-01-04 04:01:56 - src.api - INFO - __init__.py:142 - 🛠️  CORS: 开发环境宽松模式
+2026-01-04 04:02:02 - src.blockchain.fabric_client - WARNING - fabric_client.py:24 - hfc包不可用，使用模拟实现
+2026-01-04 04:02:03 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: models_router
+2026-01-04 04:02:03 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: models_router
+2026-01-04 04:02:03 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: inference_router
+2026-01-04 04:02:03 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: inference_router
+2026-01-04 04:02:04 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: training_router
+2026-01-04 04:02:04 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: training_router
+2026-01-04 04:02:04 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: system_router
+2026-01-04 04:02:04 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: system_router
+2026-01-04 04:02:04 - src.blockchain.fabric_client - WARNING - fabric_client.py:24 - hfc包不可用，使用模拟实现
+2026-01-04 04:02:05 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: models_router
+2026-01-04 04:02:05 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: edge_router
+2026-01-04 04:02:05 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: models_router
+2026-01-04 04:02:05 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: edge_router
+2026-01-04 04:02:05 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: project_router
+2026-01-04 04:02:05 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: inference_router
+2026-01-04 04:02:05 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: inference_router
+2026-01-04 04:02:05 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: project_router
+2026-01-04 04:02:05 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: federated_router
+2026-01-04 04:02:05 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: federated_router
+2026-01-04 04:02:06 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_router
+2026-01-04 04:02:06 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_router
+2026-01-04 04:02:06 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: training_router
+2026-01-04 04:02:06 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: training_router
+2026-01-04 04:02:06 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: system_router
+2026-01-04 04:02:06 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: system_router
+2026-01-04 04:02:06 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: edge_router
+2026-01-04 04:02:06 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: edge_router
+2026-01-04 04:02:06 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: project_router
+2026-01-04 04:02:06 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: project_router
+2026-01-04 04:02:07 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: federated_router
+2026-01-04 04:02:07 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: federated_router
+2026-01-04 04:02:07 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_router
+2026-01-04 04:02:07 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_router
+2026-01-04 04:02:07 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_router
+2026-01-04 04:02:07 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_router
+2026-01-04 04:02:07 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: model_training_decision_router
+2026-01-04 04:02:07 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: model_training_decision_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: resource_decision_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: resource_decision_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_monitoring_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_monitoring_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: camera_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: camera_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: model_training_decision_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: model_training_decision_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: performance_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: resource_decision_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: performance_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: blockchain_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: resource_decision_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: blockchain_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_monitoring_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_monitoring_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: camera_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: camera_router
+2026-01-04 04:02:08 - src.api.routes.ai_control - INFO - ai_control.py:226 - 暂时跳过JEPA-DT-MPC融合模块初始化，确保API文档端点可访问
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: ai_control_router
+2026-01-04 04:02:08 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: ai_control_router
+2026-01-04 04:02:09 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: performance_router
+2026-01-04 04:02:09 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: performance_router
+2026-01-04 04:02:09 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: auth_router
+2026-01-04 04:02:09 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: blockchain_router
+2026-01-04 04:02:09 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: auth_router
+2026-01-04 04:02:09 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: blockchain_router
+2026-01-04 04:02:09 - src.api.routes.ai_control - INFO - ai_control.py:226 - 暂时跳过JEPA-DT-MPC融合模块初始化，确保API文档端点可访问
+2026-01-04 04:02:09 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: ai_control_router
+2026-01-04 04:02:09 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: ai_control_router
+2026-01-04 04:02:09 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: auth_router
+2026-01-04 04:02:09 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: auth_router
+2026-01-04 04:02:14 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: jepa_dtmpc_router
+2026-01-04 04:02:14 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: jepa_dtmpc_router
+2026-01-04 04:02:14 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: community_router
+2026-01-04 04:02:14 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: community_router
+2026-01-04 04:02:14 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: user_router
+2026-01-04 04:02:14 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: user_router
+2026-01-04 04:02:14 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: enterprise_router
+2026-01-04 04:02:14 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: enterprise_router
+2026-01-04 04:02:14 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: monitoring_router
+2026-01-04 04:02:14 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: monitoring_router
+2026-01-04 04:02:14 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: health_router
+2026-01-04 04:02:14 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: health_router
+2026-01-04 04:02:14 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: notifications_router
+2026-01-04 04:02:14 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: notifications_router
+2026-01-04 04:02:14 - src.core.services.agriculture_text_learner - INFO - agriculture_text_learner.py:76 - 农业文本学习器初始化完成
+2026-01-04 04:02:14 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: jepa_dtmpc_router
+2026-01-04 04:02:14 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: jepa_dtmpc_router
+2026-01-04 04:02:14 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: community_router
+2026-01-04 04:02:14 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: community_router
+2026-01-04 04:02:14 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: user_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: user_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: enterprise_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: enterprise_router
+2026-01-04 04:02:15 - src.core.services.agriculture_text_collector - INFO - agriculture_text_collector.py:39 - 农业文本收集器初始化完成
+2026-01-04 04:02:15 - src.core.services.agriculture_text_collector - INFO - agriculture_text_collector.py:250 - 农业文本预处理器初始化完成
+2026-01-04 04:02:15 - src.core.services.agriculture_text_learner - INFO - agriculture_text_learner.py:76 - 农业文本学习器初始化完成
+2026-01-04 04:02:15 - src.core.services.agriculture_text_collector - INFO - agriculture_text_collector.py:39 - 农业文本收集器初始化完成
+2026-01-04 04:02:15 - src.core.services.agriculture_text_collector - INFO - agriculture_text_collector.py:250 - 农业文本预处理器初始化完成
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: monitoring_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_text_learning_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: monitoring_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_text_learning_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: pest_disease_quick_reference_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: health_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: pest_disease_quick_reference_router
+2026-01-04 04:02:15 - unified_exceptions - INFO - exceptions.py:301 - 统一异常处理机制已注册
+2026-01-04 04:02:15 - src.api - INFO - __init__.py:142 - 🛠️  CORS: 开发环境宽松模式
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: models_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: models_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: inference_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: inference_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: training_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: training_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: system_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: health_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: system_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: edge_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: notifications_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: edge_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: project_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: notifications_router
+2026-01-04 04:02:15 - src.core.services.agriculture_text_learner - INFO - agriculture_text_learner.py:76 - 农业文本学习器初始化完成
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: project_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: federated_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: federated_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: model_training_decision_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: model_training_decision_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: resource_decision_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: resource_decision_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_monitoring_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_monitoring_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: camera_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: camera_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: performance_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: performance_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: blockchain_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: blockchain_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: ai_control_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: ai_control_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: auth_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: auth_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: jepa_dtmpc_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: jepa_dtmpc_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: community_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: community_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: user_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: user_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: enterprise_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: enterprise_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: monitoring_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: monitoring_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: health_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: health_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: notifications_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: notifications_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_text_learning_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_text_learning_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: pest_disease_quick_reference_router
+2026-01-04 04:02:15 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: pest_disease_quick_reference_router
+2026-01-04 04:02:15 - system - INFO - logging_config.py:188 - 日志系统初始化完成，日志目录: D:\1.5\backend\src\logs
+2026-01-04 04:02:15 - system - INFO - logging_config.py:189 - 当前时间: 2026-01-04 04:02:15
+2026-01-04 04:02:15 - code_protection - INFO - code_protection.py:374 - 代码保护机制初始化完成
+2026-01-04 04:02:15 - system - INFO - logging_config.py:245 - 系统事件 - 类型: code_protection, 描述: 代码保护机制初始化完成, 时间: 2026-01-04 04:02:15
+2026-01-04 04:02:16 - code_protection - ERROR - code_protection.py:249 - 备份目录失败 D:\1.5\backend\src\src: [WinError 183] 当文件已存在时，无法创建该文件。: 'D:\\1.5\\backend\\src\\.code_backups\\initial_backup\\src'
+2026-01-04 04:02:16 - code_protection - INFO - code_protection.py:259 - 代码备份已创建: D:\1.5\backend\src\.code_backups\initial_backup
+2026-01-04 04:02:16 - system - INFO - logging_config.py:245 - 系统事件 - 类型: code_protection, 描述: 创建代码备份: initial_backup, 时间: 2026-01-04 04:02:16
+2026-01-04 04:02:16 - unified_exceptions - INFO - exceptions.py:301 - 统一异常处理机制已注册
+2026-01-04 04:02:16 - src.api - INFO - __init__.py:142 - 🛠️  CORS: 开发环境宽松模式
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: models_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: models_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: inference_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: inference_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: training_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: training_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: system_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: system_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: edge_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: edge_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: project_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: project_router
+2026-01-04 04:02:16 - src.core.services.agriculture_text_collector - INFO - agriculture_text_collector.py:39 - 农业文本收集器初始化完成
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: federated_router
+�文本预处理器初始化完成
+2026-01-04 04:02:16 - src.core.services.agriculture_text_learner - INFO - agriculture_text_learner.py:76 - 农业文本学习器初始化完成
+2026-01-04 04:02:16 - src.core.services.agriculture_text_collector - INFO - agriculture_text_collector.py:39 - 农业文本收集器初始化完成
+2026-01-04 04:02:16 - src.core.services.agriculture_text_collector - INFO - agriculture_text_collector.py:250 - 农业文本预处理器初始化完成
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: federated_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: model_training_decision_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_text_learning_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: model_training_decision_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: resource_decision_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: resource_decision_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_monitoring_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_monitoring_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: camera_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_text_learning_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: camera_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: performance_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: performance_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: blockchain_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: pest_disease_quick_reference_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: pest_disease_quick_reference_router
+2026-01-04 04:02:16 - unified_exceptions - INFO - exceptions.py:301 - 统一异常处理机制已注册
+2026-01-04 04:02:16 - src.api - INFO - __init__.py:142 - 🛠️  CORS: 开发环境宽松模式
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: models_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: blockchain_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: ai_control_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: ai_control_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: auth_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: auth_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: jepa_dtmpc_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: jepa_dtmpc_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: community_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: models_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: inference_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: community_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: user_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: inference_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: training_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: user_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: enterprise_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: training_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: system_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: enterprise_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: system_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: monitoring_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: edge_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: monitoring_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: health_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: health_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: notifications_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: notifications_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_text_learning_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: edge_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: project_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_text_learning_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: pest_disease_quick_reference_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: pest_disease_quick_reference_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: project_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: federated_router
+2026-01-04 04:02:16 - three_layer_protection - INFO - three_layer_protection.py:64 - 三层防护机制已初始化
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: federated_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: model_training_decision_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: model_training_decision_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: resource_decision_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: resource_decision_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_monitoring_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_monitoring_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: camera_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: camera_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: performance_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: performance_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: blockchain_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: blockchain_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: ai_control_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: ai_control_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: auth_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: auth_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: jepa_dtmpc_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: jepa_dtmpc_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: community_router
+2026-01-04 04:02:16 - src.api.routes.edge - INFO - edge.py:31 - 边缘管理器后台监控任务已启动
+2026-01-04 04:02:16 - src.performance.performance_optimizer - INFO - performance_optimizer.py:345 - 自动优化已启用
+2026-01-04 04:02:16 - src.blockchain.fabric_client - INFO - fabric_client.py:61 - 使用模拟Fabric客户端
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: community_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: user_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: user_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: enterprise_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: enterprise_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: monitoring_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: monitoring_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: health_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: health_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: notifications_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: notifications_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_text_learning_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_text_learning_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: pest_disease_quick_reference_router
+2026-01-04 04:02:16 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: pest_disease_quick_reference_router
+2026-01-04 04:02:16 - three_layer_protection - INFO - three_layer_protection.py:64 - 三层防护机制已初始化
+2026-01-04 04:02:19 - system - INFO - logging_config.py:188 - 日志系统初始化完成，日志目录: D:\1.5\backend\src\logs
+2026-01-04 04:02:19 - system - INFO - logging_config.py:189 - 当前时间: 2026-01-04 04:02:19
+2026-01-04 04:02:19 - code_protection - INFO - code_protection.py:374 - 代码保护机制初始化完成
+2026-01-04 04:02:19 - system - INFO - logging_config.py:245 - 系统事件 - 类型: code_protection, 描述: 代码保护机制初始化完成, 时间: 2026-01-04 04:02:19
+2026-01-04 04:02:19 - code_protection - ERROR - code_protection.py:249 - 备份目录失败 D:\1.5\backend\src\src: [WinError 183] 当文件已存在时，无法创建该文件。: 'D:\\1.5\\backend\\src\\.code_backups\\initial_backup\\src'
+2026-01-04 04:02:19 - code_protection - INFO - code_protection.py:259 - 代码备份已创建: D:\1.5\backend\src\.code_backups\initial_backup
+2026-01-04 04:02:19 - system - INFO - logging_config.py:245 - 系统事件 - 类型: code_protection, 描述: 创建代码备份: initial_backup, 时间: 2026-01-04 04:02:19
+2026-01-04 04:02:19 - unified_exceptions - INFO - exceptions.py:301 - 统一异常处理机制已注册
+2026-01-04 04:02:19 - src.api - INFO - __init__.py:142 - 🛠️  CORS: 开发环境宽松模式
+2026-01-04 04:02:22 - src.blockchain.fabric_client - WARNING - fabric_client.py:24 - hfc包不可用，使用模拟实现
+2026-01-04 04:02:22 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: models_router
+2026-01-04 04:02:22 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: models_router
+2026-01-04 04:02:22 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: inference_router
+2026-01-04 04:02:22 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: inference_router
+2026-01-04 04:02:23 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: training_router
+2026-01-04 04:02:23 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: training_router
+2026-01-04 04:02:23 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: system_router
+2026-01-04 04:02:23 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: system_router
+2026-01-04 04:02:23 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: edge_router
+2026-01-04 04:02:23 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: edge_router
+2026-01-04 04:02:23 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: project_router
+2026-01-04 04:02:23 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: project_router
+2026-01-04 04:02:23 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: federated_router
+2026-01-04 04:02:23 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: federated_router
+2026-01-04 04:02:23 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_router
+2026-01-04 04:02:23 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_router
+2026-01-04 04:02:23 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_router
+2026-01-04 04:02:23 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_router
+2026-01-04 04:02:23 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: model_training_decision_router
+2026-01-04 04:02:23 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: model_training_decision_router
+2026-01-04 04:02:23 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: resource_decision_router
+2026-01-04 04:02:23 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: resource_decision_router
+2026-01-04 04:02:23 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_monitoring_router
+2026-01-04 04:02:23 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_monitoring_router
+2026-01-04 04:02:24 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: camera_router
+2026-01-04 04:02:24 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: camera_router
+2026-01-04 04:02:24 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: performance_router
+2026-01-04 04:02:24 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: performance_router
+2026-01-04 04:02:24 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: blockchain_router
+2026-01-04 04:02:24 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: blockchain_router
+2026-01-04 04:02:24 - src.api.routes.ai_control - INFO - ai_control.py:226 - 暂时跳过JEPA-DT-MPC融合模块初始化，确保API文档端点可访问
+2026-01-04 04:02:24 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: ai_control_router
+2026-01-04 04:02:24 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: ai_control_router
+2026-01-04 04:02:24 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: auth_router
+2026-01-04 04:02:24 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: auth_router
+2026-01-04 04:02:28 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: jepa_dtmpc_router
+2026-01-04 04:02:28 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: jepa_dtmpc_router
+2026-01-04 04:02:28 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: community_router
+2026-01-04 04:02:28 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: community_router
+2026-01-04 04:02:28 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: user_router
+2026-01-04 04:02:28 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: user_router
+2026-01-04 04:02:28 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: enterprise_router
+2026-01-04 04:02:28 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: enterprise_router
+2026-01-04 04:02:28 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: monitoring_router
+2026-01-04 04:02:28 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: monitoring_router
+2026-01-04 04:02:28 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: health_router
+2026-01-04 04:02:28 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: health_router
+2026-01-04 04:02:28 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: notifications_router
+2026-01-04 04:02:28 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: notifications_router
+2026-01-04 04:02:28 - src.core.services.agriculture_text_learner - INFO - agriculture_text_learner.py:76 - 农业文本学习器初始化完成
+2026-01-04 04:02:29 - src.core.services.agriculture_text_collector - INFO - agriculture_text_collector.py:39 - 农业文本收集器初始化完成
+2026-01-04 04:02:29 - src.core.services.agriculture_text_collector - INFO - agriculture_text_collector.py:250 - 农业文本预处理器初始化完成
+2026-01-04 04:02:29 - src.core.services.agriculture_text_learner - INFO - agriculture_text_learner.py:76 - 农业文本学习器初始化完成
+2026-01-04 04:02:29 - src.core.services.agriculture_text_collector - INFO - agriculture_text_collector.py:39 - 农业文本收集器初始化完成
+2026-01-04 04:02:29 - src.core.services.agriculture_text_collector - INFO - agriculture_text_collector.py:250 - 农业文本预处理器初始化完成
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_text_learning_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_text_learning_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: pest_disease_quick_reference_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: pest_disease_quick_reference_router
+2026-01-04 04:02:29 - unified_exceptions - INFO - exceptions.py:301 - 统一异常处理机制已注册
+2026-01-04 04:02:29 - src.api - INFO - __init__.py:142 - 🛠️  CORS: 开发环境宽松模式
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: models_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: models_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: inference_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: inference_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: training_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: training_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: system_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: system_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: edge_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: edge_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: project_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: project_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: federated_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: federated_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: model_training_decision_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: model_training_decision_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: resource_decision_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: resource_decision_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_monitoring_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_monitoring_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: camera_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: camera_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: performance_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: performance_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: blockchain_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: blockchain_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: ai_control_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: ai_control_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: auth_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: auth_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: jepa_dtmpc_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: jepa_dtmpc_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: community_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: community_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: user_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: user_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: enterprise_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: enterprise_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: monitoring_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: monitoring_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: health_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: health_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: notifications_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: notifications_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_text_learning_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_text_learning_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: pest_disease_quick_reference_router
+2026-01-04 04:02:29 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: pest_disease_quick_reference_router
+2026-01-04 04:02:29 - three_layer_protection - INFO - three_layer_protection.py:64 - 三层防护机制已初始化
+2026-01-04 04:02:29 - src.api.routes.edge - INFO - edge.py:31 - 边缘管理器后台监控任务已启动
+2026-01-04 04:02:29 - src.performance.performance_optimizer - INFO - performance_optimizer.py:345 - 自动优化已启用
+2026-01-04 04:02:29 - src.blockchain.fabric_client - INFO - fabric_client.py:61 - 使用模拟Fabric客户端
+2026-01-04 04:03:21 - edge.edge_manager - INFO - edge_manager.py:375 - 边缘管理器已关闭
+2026-01-04 04:03:24 - system - INFO - logging_config.py:188 - 日志系统初始化完成，日志目录: D:\1.5\backend\src\logs
+2026-01-04 04:03:25 - system - INFO - logging_config.py:189 - 当前时间: 2026-01-04 04:03:25
+2026-01-04 04:03:25 - code_protection - INFO - code_protection.py:374 - 代码保护机制初始化完成
+2026-01-04 04:03:25 - system - INFO - logging_config.py:245 - 系统事件 - 类型: code_protection, 描述: 代码保护机制初始化完成, 时间: 2026-01-04 04:03:25
+2026-01-04 04:03:25 - code_protection - ERROR - code_protection.py:249 - 备份目录失败 D:\1.5\backend\src\src: [WinError 183] 当文件已存在时，无法创建该文件。: 'D:\\1.5\\backend\\src\\.code_backups\\initial_backup\\src'
+2026-01-04 04:03:25 - code_protection - INFO - code_protection.py:259 - 代码备份已创建: D:\1.5\backend\src\.code_backups\initial_backup
+2026-01-04 04:03:25 - system - INFO - logging_config.py:245 - 系统事件 - 类型: code_protection, 描述: 创建代码备份: initial_backup, 时间: 2026-01-04 04:03:25
+2026-01-04 04:03:25 - unified_exceptions - INFO - exceptions.py:301 - 统一异常处理机制已注册
+2026-01-04 04:03:25 - src.api - INFO - __init__.py:142 - 🛠️  CORS: 开发环境宽松模式
+2026-01-04 04:03:31 - edge.edge_manager - INFO - edge_manager.py:375 - 边缘管理器已关闭
+2026-01-04 04:03:32 - src.blockchain.fabric_client - WARNING - fabric_client.py:24 - hfc包不可用，使用模拟实现
+2026-01-04 04:03:32 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: models_router
+2026-01-04 04:03:32 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: models_router
+2026-01-04 04:03:32 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: inference_router
+2026-01-04 04:03:32 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: inference_router
+2026-01-04 04:03:33 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: training_router
+2026-01-04 04:03:33 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: training_router
+2026-01-04 04:03:33 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: system_router
+2026-01-04 04:03:33 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: system_router
+2026-01-04 04:03:33 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: edge_router
+2026-01-04 04:03:33 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: edge_router
+2026-01-04 04:03:33 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: project_router
+2026-01-04 04:03:33 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: project_router
+2026-01-04 04:03:33 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: federated_router
+2026-01-04 04:03:33 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: federated_router
+2026-01-04 04:03:34 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_router
+2026-01-04 04:03:34 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_router
+2026-01-04 04:03:34 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_router
+2026-01-04 04:03:34 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_router
+2026-01-04 04:03:34 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: model_training_decision_router
+2026-01-04 04:03:34 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: model_training_decision_router
+2026-01-04 04:03:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: resource_decision_router
+2026-01-04 04:03:35 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: resource_decision_router
+2026-01-04 04:03:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_monitoring_router
+2026-01-04 04:03:35 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_monitoring_router
+2026-01-04 04:03:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: camera_router
+2026-01-04 04:03:35 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: camera_router
+2026-01-04 04:03:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: performance_router
+2026-01-04 04:03:35 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: performance_router
+2026-01-04 04:03:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: blockchain_router
+2026-01-04 04:03:35 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: blockchain_router
+2026-01-04 04:03:35 - src.api.routes.ai_control - INFO - ai_control.py:226 - 暂时跳过JEPA-DT-MPC融合模块初始化，确保API文档端点可访问
+2026-01-04 04:03:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: ai_control_router
+2026-01-04 04:03:35 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: ai_control_router
+2026-01-04 04:03:36 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: auth_router
+2026-01-04 04:03:36 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: auth_router
+2026-01-04 04:03:35 - system - INFO - logging_config.py:188 - 日志系统初始化完成，日志目录: D:\1.5\backend\src\logs
+2026-01-04 04:03:37 - system - INFO - logging_config.py:189 - 当前时间: 2026-01-04 04:03:37
+2026-01-04 04:03:38 - code_protection - INFO - code_protection.py:374 - 代码保护机制初始化完成
+2026-01-04 04:03:38 - system - INFO - logging_config.py:245 - 系统事件 - 类型: code_protection, 描述: 代码保护机制初始化完成, 时间: 2026-01-04 04:03:38
+2026-01-04 04:03:39 - code_protection - ERROR - code_protection.py:249 - 备份目录失败 D:\1.5\backend\src\src: [WinError 183] 当文件已存在时，无法创建该文件。: 'D:\\1.5\\backend\\src\\.code_backups\\initial_backup\\src'
+2026-01-04 04:03:39 - code_protection - INFO - code_protection.py:259 - 代码备份已创建: D:\1.5\backend\src\.code_backups\initial_backup
+2026-01-04 04:03:39 - system - INFO - logging_config.py:245 - 系统事件 - 类型: code_protection, 描述: 创建代码备份: initial_backup, 时间: 2026-01-04 04:03:39
+2026-01-04 04:03:39 - unified_exceptions - INFO - exceptions.py:301 - 统一异常处理机制已注册
+2026-01-04 04:03:39 - src.api - INFO - __init__.py:142 - 🛠️  CORS: 开发环境宽松模式
+2026-01-04 04:03:41 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: jepa_dtmpc_router
+2026-01-04 04:03:41 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: jepa_dtmpc_router
+2026-01-04 04:03:41 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: community_router
+2026-01-04 04:03:41 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: community_router
+2026-01-04 04:03:41 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: user_router
+2026-01-04 04:03:41 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: user_router
+2026-01-04 04:03:41 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: enterprise_router
+2026-01-04 04:03:41 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: enterprise_router
+2026-01-04 04:03:41 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: monitoring_router
+2026-01-04 04:03:41 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: monitoring_router
+2026-01-04 04:03:41 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: health_router
+2026-01-04 04:03:41 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: health_router
+2026-01-04 04:03:41 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: notifications_router
+2026-01-04 04:03:41 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: notifications_router
+2026-01-04 04:03:41 - src.core.services.agriculture_text_learner - INFO - agriculture_text_learner.py:76 - 农业文本学习器初始化完成
+2026-01-04 04:03:42 - src.core.services.agriculture_text_collector - INFO - agriculture_text_collector.py:39 - 农业文本收集器初始化完成
+2026-01-04 04:03:42 - src.core.services.agriculture_text_collector - INFO - agriculture_text_collector.py:250 - 农业文本预处理器初始化完成
+2026-01-04 04:03:42 - src.core.services.agriculture_text_learner - INFO - agriculture_text_learner.py:76 - 农业文本学习器初始化完成
+2026-01-04 04:03:42 - src.core.services.agriculture_text_collector - INFO - agriculture_text_collector.py:39 - 农业文本收集器初始化完成
+2026-01-04 04:03:42 - src.core.services.agriculture_text_collector - INFO - agriculture_text_collector.py:250 - 农业文本预处理器初始化完成
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_text_learning_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_text_learning_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: pest_disease_quick_reference_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: pest_disease_quick_reference_router
+2026-01-04 04:03:42 - unified_exceptions - INFO - exceptions.py:301 - 统一异常处理机制已注册
+2026-01-04 04:03:42 - src.api - INFO - __init__.py:142 - 🛠️  CORS: 开发环境宽松模式
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: models_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: models_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: inference_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: inference_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: training_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: training_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: system_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: system_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: edge_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: edge_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: project_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: project_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: federated_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: federated_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: model_training_decision_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: model_training_decision_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: resource_decision_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: resource_decision_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_monitoring_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_monitoring_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: camera_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: camera_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: performance_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: performance_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: blockchain_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: blockchain_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: ai_control_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: ai_control_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: auth_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: auth_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: jepa_dtmpc_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: jepa_dtmpc_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: community_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: community_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: user_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: user_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: enterprise_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: enterprise_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: monitoring_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: monitoring_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: health_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: health_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: notifications_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: notifications_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_text_learning_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_text_learning_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: pest_disease_quick_reference_router
+2026-01-04 04:03:42 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: pest_disease_quick_reference_router
+2026-01-04 04:03:43 - system - INFO - logging_config.py:188 - 日志系统初始化完成，日志目录: D:\1.5\backend\src\logs
+2026-01-04 04:03:43 - system - INFO - logging_config.py:189 - 当前时间: 2026-01-04 04:03:43
+2026-01-04 04:03:43 - code_protection - INFO - code_protection.py:374 - 代码保护机制初始化完成
+2026-01-04 04:03:43 - system - INFO - logging_config.py:245 - 系统事件 - 类型: code_protection, 描述: 代码保护机制初始化完成, 时间: 2026-01-04 04:03:43
+2026-01-04 04:03:43 - code_protection - ERROR - code_protection.py:249 - 备份目录失败 D:\1.5\backend\src\src: [WinError 183] 当文件已存在时，无法创建该文件。: 'D:\\1.5\\backend\\src\\.code_backups\\initial_backup\\src'
+2026-01-04 04:03:43 - code_protection - INFO - code_protection.py:259 - 代码备份已创建: D:\1.5\backend\src\.code_backups\initial_backup
+2026-01-04 04:03:43 - system - INFO - logging_config.py:245 - 系统事件 - 类型: code_protection, 描述: 创建代码备份: initial_backup, 时间: 2026-01-04 04:03:43
+2026-01-04 04:03:43 - unified_exceptions - INFO - exceptions.py:301 - 统一异常处理机制已注册
+2026-01-04 04:03:43 - src.api - INFO - __init__.py:142 - 🛠️  CORS: 开发环境宽松模式
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: models_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: models_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: inference_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: inference_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: training_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: training_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: system_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: system_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: edge_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: edge_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: project_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: project_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: federated_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: federated_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: model_training_decision_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: model_training_decision_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: resource_decision_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: resource_decision_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_monitoring_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_monitoring_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: camera_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: camera_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: performance_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: performance_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: blockchain_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: blockchain_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: ai_control_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: ai_control_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: auth_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: auth_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: jepa_dtmpc_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: jepa_dtmpc_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: community_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: community_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: user_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: user_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: enterprise_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: enterprise_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: monitoring_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: monitoring_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: health_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: health_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: notifications_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: notifications_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_text_learning_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_text_learning_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: pest_disease_quick_reference_router
+2026-01-04 04:03:43 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: pest_disease_quick_reference_router
+2026-01-04 04:03:43 - three_layer_protection - INFO - three_layer_protection.py:64 - 三层防护机制已初始化
+2026-01-04 04:03:43 - src.api.routes.edge - INFO - edge.py:31 - 边缘管理器后台监控任务已启动
+2026-01-04 04:03:43 - src.performance.performance_optimizer - INFO - performance_optimizer.py:345 - 自动优化已启用
+2026-01-04 04:03:43 - src.blockchain.fabric_client - INFO - fabric_client.py:61 - 使用模拟Fabric客户端
+2026-01-04 04:03:44 - src.blockchain.fabric_client - WARNING - fabric_client.py:24 - hfc包不可用，使用模拟实现
+2026-01-04 04:03:44 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: models_router
+2026-01-04 04:03:44 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: models_router
+2026-01-04 04:03:44 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: inference_router
+2026-01-04 04:03:44 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: inference_router
+2026-01-04 04:03:45 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: training_router
+2026-01-04 04:03:45 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: training_router
+2026-01-04 04:03:45 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: system_router
+2026-01-04 04:03:45 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: system_router
+2026-01-04 04:03:45 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: edge_router
+2026-01-04 04:03:45 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: edge_router
+2026-01-04 04:03:45 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: project_router
+2026-01-04 04:03:45 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: project_router
+2026-01-04 04:03:45 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: federated_router
+2026-01-04 04:03:45 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: federated_router
+2026-01-04 04:03:45 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_router
+2026-01-04 04:03:45 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_router
+2026-01-04 04:03:45 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_router
+2026-01-04 04:03:45 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_router
+2026-01-04 04:03:45 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: model_training_decision_router
+2026-01-04 04:03:45 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: model_training_decision_router
+2026-01-04 04:03:46 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: resource_decision_router
+2026-01-04 04:03:46 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: resource_decision_router
+2026-01-04 04:03:46 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_monitoring_router
+2026-01-04 04:03:46 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_monitoring_router
+2026-01-04 04:03:46 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: camera_router
+2026-01-04 04:03:46 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: camera_router
+2026-01-04 04:03:46 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: performance_router
+2026-01-04 04:03:46 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: performance_router
+2026-01-04 04:03:46 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: blockchain_router
+2026-01-04 04:03:46 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: blockchain_router
+2026-01-04 04:03:46 - src.api.routes.ai_control - INFO - ai_control.py:226 - 暂时跳过JEPA-DT-MPC融合模块初始化，确保API文档端点可访问
+2026-01-04 04:03:46 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: ai_control_router
+2026-01-04 04:03:46 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: ai_control_router
+2026-01-04 04:03:46 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: auth_router
+2026-01-04 04:03:46 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: auth_router
+2026-01-04 04:03:49 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: jepa_dtmpc_router
+2026-01-04 04:03:49 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: jepa_dtmpc_router
+2026-01-04 04:03:49 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: community_router
+2026-01-04 04:03:49 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: community_router
+2026-01-04 04:03:49 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: user_router
+2026-01-04 04:03:49 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: user_router
+2026-01-04 04:03:49 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: enterprise_router
+2026-01-04 04:03:49 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: enterprise_router
+2026-01-04 04:03:49 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: monitoring_router
+2026-01-04 04:03:49 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: monitoring_router
+2026-01-04 04:03:49 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: health_router
+2026-01-04 04:03:49 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: health_router
+2026-01-04 04:03:49 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: notifications_router
+2026-01-04 04:03:49 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: notifications_router
+2026-01-04 04:03:49 - src.core.services.agriculture_text_learner - INFO - agriculture_text_learner.py:76 - 农业文本学习器初始化完成
+2026-01-04 04:03:50 - src.core.services.agriculture_text_collector - INFO - agriculture_text_collector.py:39 - 农业文本收集器初始化完成
+2026-01-04 04:03:50 - src.core.services.agriculture_text_collector - INFO - agriculture_text_collector.py:250 - 农业文本预处理器初始化完成
+2026-01-04 04:03:50 - src.core.services.agriculture_text_learner - INFO - agriculture_text_learner.py:76 - 农业文本学习器初始化完成
+2026-01-04 04:03:50 - src.core.services.agriculture_text_collector - INFO - agriculture_text_collector.py:39 - 农业文本收集器初始化完成
+2026-01-04 04:03:50 - src.core.services.agriculture_text_collector - INFO - agriculture_text_collector.py:250 - 农业文本预处理器初始化完成
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_text_learning_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_text_learning_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: pest_disease_quick_reference_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: pest_disease_quick_reference_router
+2026-01-04 04:03:50 - unified_exceptions - INFO - exceptions.py:301 - 统一异常处理机制已注册
+2026-01-04 04:03:50 - src.api - INFO - __init__.py:142 - 🛠️  CORS: 开发环境宽松模式
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: models_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: models_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: inference_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: inference_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: training_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: training_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: system_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: system_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: edge_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: edge_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: project_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: project_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: federated_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: federated_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: model_training_decision_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: model_training_decision_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: resource_decision_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: resource_decision_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_monitoring_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: decision_monitoring_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: camera_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: camera_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: performance_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: performance_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: blockchain_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: blockchain_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: ai_control_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: ai_control_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: auth_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: auth_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: jepa_dtmpc_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: jepa_dtmpc_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: community_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: community_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: user_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: user_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: enterprise_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: enterprise_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: monitoring_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: monitoring_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: health_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: health_router
+2026-01-04 04:03:50 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: notifications_router
+2026-01-04 04:03:51 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: notifications_router
+2026-01-04 04:03:51 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_text_learning_router
+2026-01-04 04:03:51 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: agriculture_text_learning_router
+2026-01-04 04:03:51 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: pest_disease_quick_reference_router
+2026-01-04 04:03:51 - src.api.register_router - INFO - register_router.py:94 - 成功注册路由: pest_disease_quick_reference_router
+2026-01-04 04:03:51 - three_layer_protection - INFO - three_layer_protection.py:64 - 三层防护机制已初始化
+2026-01-04 04:03:51 - src.api.routes.edge - INFO - edge.py:31 - 边缘管理器后台监控任务已启动
+2026-01-04 04:03:51 - src.performance.performance_optimizer - INFO - performance_optimizer.py:345 - 自动优化已启用
+2026-01-04 04:03:51 - src.blockchain.fabric_client - INFO - fabric_client.py:61 - 使用模拟Fabric客户端
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: models_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: inference_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: training_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: system_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: edge_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: project_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: federated_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: model_training_decision_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: resource_decision_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_monitoring_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: camera_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: performance_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: blockchain_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: ai_control_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: auth_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: jepa_dtmpc_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: community_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: user_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: enterprise_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: monitoring_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: health_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: notifications_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_text_learning_router
+2026-01-04 04:04:35 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: pest_disease_quick_reference_router
+2026-01-04 04:04:35 - api - INFO - logging_config.py:284 - API访问 - IP: 127.0.0.1, 用户: unknown, 方法: GET, 路径: /, 状态码: 200, 耗时: 0.011s
+2026-01-04 04:04:35 - api - WARNING - logging_config.py:280 - API访问 - IP: 127.0.0.1, 用户: unknown, 方法: GET, 路径: /@vite/client, 状态码: 404, 耗时: 0.005s
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: models_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: inference_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: training_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: system_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: edge_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: project_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: federated_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: model_training_decision_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: resource_decision_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_monitoring_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: camera_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: performance_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: blockchain_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: ai_control_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: auth_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: jepa_dtmpc_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: community_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: user_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: enterprise_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: monitoring_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: health_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: notifications_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_text_learning_router
+2026-01-04 04:04:37 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: pest_disease_quick_reference_router
+2026-01-04 04:04:37 - api - INFO - logging_config.py:284 - API访问 - IP: 127.0.0.1, 用户: unknown, 方法: GET, 路径: /, 状态码: 200, 耗时: 0.014s
+2026-01-04 04:04:37 - api - WARNING - logging_config.py:280 - API访问 - IP: 127.0.0.1, 用户: unknown, 方法: GET, 路径: /@vite/client, 状态码: 404, 耗时: 0.005s
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: models_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: inference_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: training_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: system_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: edge_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: project_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: federated_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: model_training_decision_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: resource_decision_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: decision_monitoring_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: camera_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: performance_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: blockchain_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: ai_control_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: auth_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: jepa_dtmpc_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: community_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: user_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: enterprise_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: monitoring_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: health_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: notifications_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: agriculture_text_learning_router
+2026-01-04 04:04:39 - src.api.register_router - INFO - register_router.py:65 - 成功加载路由: pest_disease_quick_reference_router
+2026-01-04 04:04:39 - api - INFO - logging_config.py:284 - API访问 - IP: 127.0.0.1, 用户: unknown, 方法: GET, 路径: /, 状态码: 200, 耗时: 0.011s
+2026-01-04 04:04:39 - api - WARNING - logging_config.py:280 - API访问 - IP: 127.0.0.1, 用户: unknown, 方法: GET, 路径: /@vite/client, 状态码: 404, 耗时: 0.006s
+2026-01-04 04:05:37 - edge.edge_manager - INFO - edge_manager.py:375 - 边缘管理器已关闭
+2026-01-04 04:05:38 - edge.edge_manager - INFO - edge_manager.py:375 - 边缘管理器已关闭
