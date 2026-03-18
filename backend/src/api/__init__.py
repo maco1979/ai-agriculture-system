@@ -3,6 +3,7 @@
 """
 
 import os
+from datetime import datetime
 
 # 在导入任何可能使用Flax的模块之前应用补丁
 from core.utils.flax_patch import apply_flax_patch
@@ -160,6 +161,17 @@ def create_app() -> FastAPI:
             "message": "AI项目API服务",
             "version": "1.0.0",
             "docs": "/docs"
+        }
+    
+    # 健康检查根路径（用于Railway健康检查）
+    @app.get("/health")
+    async def health_check_root():
+        """根路径健康检查（用于Railway）"""
+        return {
+            "status": "healthy",
+            "timestamp": datetime.now().isoformat(),
+            "service": "ai-platform-backend",
+            "version": "1.0.0"
         }
     
     return app
