@@ -1,0 +1,11 @@
+{
+  "counters": {},
+  "gauges": {
+    "system_health_status{component=\"system\"}": 1.0,
+    "system_health_status{component=\"cpu\"}": 1.0,
+    "system_health_status{component=\"memory\"}": 1.0,
+    "system_health_status{component=\"disk\"}": 1.0
+  },
+  "histograms": {},
+  "timestamp": "2026-03-01T19:31:08.454865"
+}

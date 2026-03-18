@@ -1,0 +1,8 @@
+{
+  "name": "HighCPUUsage",
+  "description": "CPU使用率过高",
+  "severity": "warning",
+  "value": 96.2,
+  "condition": "cpu.percent > 80",
+  "timestamp": "2026-03-01T19:41:30.592152"
+}

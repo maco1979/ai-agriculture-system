@@ -1,0 +1,53 @@
+# GitHub Actions自动标签配置
+
+# 添加'backend'标签到任何后端文件变更
+backend:
+- changed-files:
+  - any-glob-to-any-file: 'backend/**/*'
+
+# 添加'frontend'标签到任何前端文件变更
+frontend:
+- changed-files:
+  - any-glob-to-any-file: 'frontend/**/*'
+
+# 添加'documentation'标签到任何文档文件变更
+documentation:
+- changed-files:
+  - any-glob-to-any-file: '**/*.md'
+  - any-glob-to-any-file: 'docs/**/*'
+
+# 添加'config'标签到任何配置文件变更
+config:
+- changed-files:
+  - any-glob-to-any-file: '**/*.yml'
+  - any-glob-to-any-file: '**/*.yaml'
+  - any-glob-to-any-file: '**/*.json'
+  - any-glob-to-any-file: '**/*.ini'
+  - any-glob-to-any-file: '**/*.toml'
+  - any-glob-to-any-file: '**/*.env*'
+
+# 添加'core'标签到核心AI文件变更
+core:
+- changed-files:
+  - any-glob-to-any-file: '**/core/**/*'
+  - any-glob-to-any-file: '**/ai_*'
+  - any-glob-to-any-file: '**/*_ai*'
+
+# 添加'federated'标签到联邦学习相关文件变更
+federated:
+- changed-files:
+  - any-glob-to-any-file: '**/federated/**/*'
+  - any-glob-to-any-file: '**/*federated*'
+
+# 添加'api'标签到API相关文件变更
+api:
+- changed-files:
+  - any-glob-to-any-file: '**/api/**/*'
+  - any-glob-to-any-file: '**/*api*'
+
+# 添加'test'标签到测试文件变更
+test:
+- changed-files:
+  - any-glob-to-any-file: '**/*test*'
+  - any-glob-to-any-file: '**/tests/**/*'
+  - any-glob-to-any-file: '**/__tests__/**/*'

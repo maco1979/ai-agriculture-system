@@ -1,0 +1,78 @@
+{
+  "system": {
+    "name": "自动学习控制本地硬件系统",
+    "version": "1.0.0",
+    "description": "集成硬件检测、智能决策、自动控制和持续学习的硬件管理系统"
+  },
+  "learning": {
+    "learning_rate": 0.1,
+    "learning_interval": 10,
+    "decision_interval": 2,
+    "control_interval": 1,
+    "max_buffer_size": 10000,
+    "collection_interval": 1.0
+  },
+  "control": {
+    "default_strategy": "adaptive",
+    "strategies": ["reactive", "predictive", "adaptive", "optimal"],
+    "safety_first": true,
+    "max_retries": 3,
+    "retry_delay": 1
+  },
+  "devices": {
+    "scan_on_startup": true,
+    "auto_reconnect": true,
+    "connection_timeout": 5,
+    "supported_types": [
+      "sensor",
+      "controller",
+      "camera",
+      "bluetooth",
+      "infrared",
+      "wifi",
+      "network"
+    ]
+  },
+  "hardware": {
+    "spectrum": {
+      "serial_port": "/dev/ttyUSB0",
+      "baud_rate": 9600,
+      "timeout": 1.0,
+      "led_count": 20000,
+      "uv_count": 200,
+      "far_red_count": 400,
+      "white_count": 18000,
+      "red_count": 400
+    },
+    "camera": {
+      "default_index": 0,
+      "fallback_to_simulation": true,
+      "resolution": {
+        "width": 640,
+        "height": 480
+      },
+      "fps": 30
+    }
+  },
+  "agents": {
+    "types": ["decision", "control", "learning"],
+    "auto_initialize": true,
+    "execution_timeout": 30
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "file": "auto_learn_hardware.log"
+  },
+  "api": {
+    "enabled": true,
+    "host": "localhost",
+    "port": 8000,
+    "endpoints": {
+      "devices": "/ai-control/devices",
+      "control": "/ai-control/device/{id}",
+      "master_control": "/ai-control/master-control",
+      "status": "/ai-control/master-control/status"
+    }
+  }
+}

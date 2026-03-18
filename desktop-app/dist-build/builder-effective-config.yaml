@@ -1,0 +1,15 @@
+directories:
+  output: dist-build
+  buildResources: build
+appId: com.ai-decision-system.app
+productName: AI决策系统
+copyright: Copyright © 2026 AI决策系统
+files:
+  - filter:
+      - electron-main.js
+      - dist-vite/**/*
+win:
+  target:
+    - portable
+  icon: src/assets/icon.ico
+electronVersion: 39.2.7

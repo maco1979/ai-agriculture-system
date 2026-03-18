@@ -1,0 +1,190 @@
+# 火山引擎部署配置文件
+# 包含所有部署参数和配置
+
+# 基本信息
+project:
+  name: "ai-agriculture"
+  version: "1.0.0"
+  description: "AI农业决策系统"
+
+# 火山引擎配置
+volcengine:
+  region: "cn-beijing"
+  console_url: "https://console.volcengine.com/iam/keymanage"
+  
+  # 访问密钥配置
+  access_key:
+    id: "AKLTZWM5Y2Y2MTZhMWI2NDNmNmExNzk2ZmYwNzhmOTFkYWY"
+    # 注意: Secret Key需要单独保管，不要提交到代码仓库
+    secret: "请在此处填写SecretKey"
+  
+  registry:
+    endpoint: "cr.volcengine.com"
+    namespace: "ai-agriculture"
+    username: "volcen"
+    # 密码已加密存储 (原始密码: 火山引擎镜像仓库密码)
+    password_base64: "WmpJNVl6QXpORGt6TXpoak5HWTJZemt3T1RaaU1HVmxPRFV3WkRZNVlUQQ=="
+  
+  # Kubernetes集群配置
+  vke:
+    cluster_name: "ai-agriculture-cluster"
+    namespace: "ai-agriculture"
+    node_pool:
+      instance_type: "ecs.g2i.xlarge"
+      min_nodes: 3
+      max_nodes: 10
+      desired_nodes: 3
+
+# 服务配置
+services:
+  backend-core:
+    replicas: 3
+    port: 8000
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "2000m"
+    health_check:
+      path: "/health"
+      interval: 30
+      timeout: 5
+      retries: 3
+    
+  api-gateway:
+    replicas: 2
+    port: 8080
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+    
+  frontend-web:
+    replicas: 2
+    port: 80
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+    
+  decision-service:
+    replicas: 2
+    port: 8002
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "2000m"
+
+# 数据库配置
+database:
+  postgres:
+    version: "15-alpine"
+    storage: "20Gi"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+    
+  redis:
+    version: "7-alpine"
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+
+# 自动扩缩容配置
+autoscaling:
+  enabled: true
+  backend-core:
+    min_replicas: 3
+    max_replicas: 10
+    target_cpu_utilization: 70
+    target_memory_utilization: 80
+  
+  api-gateway:
+    min_replicas: 2
+    max_replicas: 8
+    target_cpu_utilization: 70
+  
+  frontend-web:
+    min_replicas: 2
+    max_replicas: 6
+    target_cpu_utilization: 70
+
+# 网络配置
+network:
+  ingress:
+    enabled: true
+    class: "alb"
+    scheme: "internet-facing"
+    ports:
+      - 80
+      - 443
+    health_check:
+      path: "/health"
+  
+  # CORS配置
+  cors:
+    allowed_origins:
+      - "https://your-domain.com"
+      - "https://www.your-domain.com"
+    allowed_methods:
+      - "GET"
+      - "POST"
+      - "PUT"
+      - "DELETE"
+      - "OPTIONS"
+    allowed_headers:
+      - "Content-Type"
+      - "Authorization"
+      - "X-Requested-With"
+
+# 监控配置
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    retention: "15d"
+  grafana:
+    enabled: true
+    admin_user: "admin"
+    admin_password: "admin123"
+
+# 日志配置
+logging:
+  level: "info"
+  format: "json"
+  retention: "30d"
+
+# 安全配置
+security:
+  # API密钥
+  api_key: "WmpJNVl6QXpORGt6TXpoak5HWTJZemt3T1RaaU1HVmxPRFV3WkRZNVlUQQ=="
+  
+  # 速率限制
+  rate_limit:
+    enabled: true
+    requests_per_minute: 300
+    burst_limit: 500
+  
+  # SSL/TLS
+  tls:
+    enabled: true
+    certificate_arn: ""

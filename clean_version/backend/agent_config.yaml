@@ -1,0 +1,495 @@
+# AI农业决策系统 - 多智能体技能配置
+# 版本: 2.0.0
+# 更新日期: 2026-03-16
+# 架构: 协调者(Orchestrator) + 4个专业智能体 + 7个技能模块
+
+# ═══════════════════════════════════════════════════════════
+#  协调者智能体配置（新增）
+# ═══════════════════════════════════════════════════════════
+orchestrator_agent:
+  name: "多智能体协调者"
+  description: "负责统一调度、路由和协调所有专业智能体的中央协调者"
+  enabled: true
+  module: "src.orchestrator_agent"
+  class: "OrchestratorAgent"
+  factory_function: "create_orchestrator"
+
+  # 路由配置：意图 -> 智能体映射
+  routing:
+    greeting:            ["user_interaction_agent"]
+    help:                ["user_interaction_agent"]
+    query_weather:       ["decision_engine_agent"]
+    query_crop_status:   ["decision_engine_agent"]
+    irrigation_control:  ["edge_computing_agent"]
+    fertilization_advice:["decision_engine_agent"]
+    pest_detection:      ["decision_engine_agent", "blockchain_agent"]  # 并行
+    harvest_planning:    ["decision_engine_agent"]
+    device_control:      ["edge_computing_agent"]
+    data_query:          ["decision_engine_agent"]
+    system_status:       ["edge_computing_agent"]
+    blockchain_trace:    ["blockchain_agent"]
+    unknown:             ["user_interaction_agent"]
+
+  # 协作模式配置
+  collaboration_modes:
+    - name: "综合决策流水线"
+      trigger: "collaborative_decision"
+      pipeline:
+        - step: 1
+          agent: "edge_computing_agent"
+          action: "get_latest_sensor_data"
+          description: "采集实时传感器数据"
+        - step: 2
+          agent: "decision_engine_agent"
+          action: "make_comprehensive_decision"
+          description: "多维度AI决策分析"
+          depends_on: [1]
+        - step: 3
+          agent: "user_interaction_agent"
+          action: "generate_recommendations"
+          description: "生成个性化推荐"
+          depends_on: [2]
+        - step: 4
+          agent: "blockchain_agent"
+          action: "record_decision"
+          description: "决策结果上链（异步）"
+          async: true
+          depends_on: [2]
+
+  performance:
+    task_timeout_seconds: 30
+    max_parallel_tasks: 8
+    queue_size: 100
+    retry_on_failure: true
+    max_retries: 2
+
+# ═══════════════════════════════════════════════════════════
+#  决策引擎智能体配置
+# ═══════════════════════════════════════════════════════════
+decision_engine_agent:
+  name: "农业决策引擎"
+  description: "核心AI决策智能体，负责综合分析并提供农业决策建议"
+  enabled: true
+  module: "src.orchestrator_agent"
+  class: "DecisionEngineAgent"
+
+  skills:
+    - name: "weather_skill"
+      module: "skills.weather_skill"
+      class: "WeatherSkill"
+      version: "1.0.0"
+      config:
+        api_key: null
+        cache_duration_minutes: 30
+        fallback_enabled: true
+      capabilities:
+        - get_forecast
+        - get_current
+        - get_agriculture_weather
+
+    - name: "crop_skill"
+      module: "skills.crop_skill"
+      class: "CropSkill"
+      version: "1.0.0"
+      config:
+        crop_database_path: "data/crops.json"
+        supported_crops: ["水稻", "小麦", "玉米", "大豆", "棉花", "油菜", "蔬菜"]
+      capabilities:
+        - get_crop_info
+        - calculate_growth_stage
+        - get_management_recommendations
+        - predict_yield
+
+    - name: "pest_skill"
+      module: "skills.pest_skill"
+      class: "PestSkill"
+      version: "1.0.0"
+      config:
+        pest_database_path: "data/pests.json"
+        image_recognition_enabled: false
+        risk_threshold_high: 0.7
+        risk_threshold_medium: 0.4
+      capabilities:
+        - identify_pest
+        - get_prevention_plan
+        - predict_pest_risk
+
+  decision_rules:
+    - id: "DR001"
+      name: "灌溉决策规则"
+      conditions:
+        - "soil_moisture < 30%"
+        - "weather.forecast.precipitation < 5mm"
+      action: "recommend_irrigation"
+      priority: "high"
+      auto_execute: false
+
+    - id: "DR002"
+      name: "施肥决策规则"
+      conditions:
+        - "growth_stage in ['分蘖期', '拔节期']"
+        - "soil_nutrient_level < 'medium'"
+      action: "recommend_fertilization"
+      priority: "medium"
+      auto_execute: false
+
+    - id: "DR003"
+      name: "病虫害防治规则"
+      conditions:
+        - "pest_risk_level == 'high'"
+        - "weather.humidity > 80%"
+      action: "recommend_pest_control"
+      priority: "high"
+      auto_execute: false
+
+    - id: "DR004"
+      name: "高温补水规则"
+      conditions:
+        - "temperature > 35°C"
+        - "soil_moisture < 50%"
+      action: "emergency_irrigation"
+      priority: "critical"
+      auto_execute: true
+
+# ═══════════════════════════════════════════════════════════
+#  区块链智能体配置
+# ═══════════════════════════════════════════════════════════
+blockchain_agent:
+  name: "农业区块链智能体"
+  description: "负责农产品溯源和数据上链的区块链智能体"
+  enabled: true
+  module: "src.orchestrator_agent"
+  class: "BlockchainAgent"
+
+  skills:
+    - name: "blockchain_skill"
+      module: "skills.blockchain_skill"
+      class: "BlockchainSkill"
+      version: "1.0.0"
+      config:
+        node_url: "http://localhost:7050"
+        chaincode_id: "agri-chaincode"
+        channel_name: "agriculture-channel"
+        simulation_mode: true  # 无Fabric环境时使用模拟模式
+      capabilities:
+        - record_planting
+        - record_fertilization
+        - record_pest_control
+        - record_harvest
+        - trace_product
+        - verify_product
+        - get_blockchain_stats
+        - record_decision  # 新增：记录AI决策
+
+  blockchain_config:
+    network_type: "permissioned"
+    consensus: "raft"
+    privacy_level: "high"
+    data_retention_years: 10
+
+  traceability_rules:
+    - event: "种植"
+      required_fields: ["seed_variety", "planting_date", "location"]
+      auto_record: true
+    - event: "施肥"
+      required_fields: ["fertilizer_type", "amount", "application_date"]
+      auto_record: true
+    - event: "病虫害防治"
+      required_fields: ["pest_name", "treatment", "application_date"]
+      auto_record: true
+    - event: "收获"
+      required_fields: ["yield", "quality_grade", "harvest_date"]
+      auto_record: true
+    - event: "AI决策"  # 新增
+      required_fields: ["decision_type", "model_name", "timestamp"]
+      auto_record: true
+
+# ═══════════════════════════════════════════════════════════
+#  边缘计算智能体配置
+# ═══════════════════════════════════════════════════════════
+edge_computing_agent:
+  name: "边缘计算智能体"
+  description: "负责设备连接、数据采集和本地决策执行的边缘智能体"
+  enabled: true
+  module: "src.orchestrator_agent"
+  class: "EdgeComputingAgent"
+
+  skills:
+    - name: "device_skill"
+      module: "skills.device_skill"
+      class: "DeviceSkill"
+      version: "1.0.0"
+      config:
+        mqtt_broker: "mqtt://localhost:1883"
+        discovery_interval_seconds: 60
+        data_collection_interval_seconds: 30
+        simulation_mode: true
+      capabilities:
+        - discover_devices
+        - get_device_status
+        - control_device
+        - read_sensor_data
+        - schedule_task
+        - get_latest_sensor_data  # 新增
+
+  device_categories:
+    sensors:
+      - type: "temperature"
+        protocol: "MQTT"
+        data_format: "json"
+        sampling_rate: "1/minute"
+        zones: ["zone_a", "zone_b", "zone_c"]
+      - type: "humidity"
+        protocol: "MQTT"
+        data_format: "json"
+        sampling_rate: "1/minute"
+      - type: "soil_moisture"
+        protocol: "LoRaWAN"
+        data_format: "binary"
+        sampling_rate: "5/minute"
+      - type: "light_intensity"
+        protocol: "MQTT"
+        data_format: "json"
+        sampling_rate: "5/minute"
+      - type: "soil_ph"
+        protocol: "LoRaWAN"
+        data_format: "binary"
+        sampling_rate: "30/minute"
+    actuators:
+      - type: "irrigation_valve"
+        protocol: "Modbus"
+        control_mode: "digital"
+        safety_timeout_seconds: 300
+      - type: "sprayer"
+        protocol: "CAN"
+        control_mode: "analog"
+        safety_timeout_seconds: 600
+      - type: "led_grow_light"
+        protocol: "MQTT"
+        control_mode: "pwm"
+        safety_timeout_seconds: 0
+    cameras:
+      - type: "field_camera"
+        protocol: "RTSP"
+        resolution: "1080p"
+        storage_days: 30
+
+  edge_decisions:
+    - id: "ED001"
+      name: "自动灌溉决策"
+      trigger: "soil_moisture < 25%"
+      action: "open_irrigation_valve"
+      duration: "10 minutes"
+      requires_cloud_confirmation: false
+    - id: "ED002"
+      name: "高温告警"
+      trigger: "temperature > 40°C or temperature < 5°C"
+      action: "send_alert"
+      target: ["mobile_app", "cloud_dashboard"]
+      requires_cloud_confirmation: false
+    - id: "ED003"
+      name: "光照不足补光"
+      trigger: "light_intensity < 500 and daytime"
+      action: "enable_grow_lights"
+      duration: "4 hours"
+      requires_cloud_confirmation: false
+
+# ═══════════════════════════════════════════════════════════
+#  用户交互智能体配置（完善）
+# ═══════════════════════════════════════════════════════════
+user_interaction_agent:
+  name: "用户交互智能体"
+  description: "负责前端交互、自然语言理解和个性化推荐的智能体"
+  enabled: true
+  module: "src.orchestrator_agent"
+  class: "UserInteractionAgent"
+
+  skills:
+    - name: "nlp_skill"
+      module: "skills.nlp_skill"
+      class: "NLPSkill"
+      version: "1.0.0"  # 已实现
+      config:
+        language: "zh-CN"
+        sentiment_analysis_enabled: true
+        intent_cache_size: 500
+        supported_intents:
+          - greeting
+          - help
+          - query_weather
+          - query_crop_status
+          - irrigation_control
+          - fertilization_advice
+          - pest_detection
+          - harvest_planning
+          - device_control
+          - data_query
+          - system_status
+          - blockchain_trace
+          - unknown
+      capabilities:
+        - understand_intent
+        - extract_entities
+        - analyze_sentiment
+        - generate_response
+        - parse_command
+        - batch_parse
+
+    - name: "recommendation_skill"
+      module: "skills.recommendation_skill"
+      class: "RecommendationSkill"
+      version: "1.0.0"  # 已实现
+      config:
+        recommendation_engine: "rule_based"
+        personalization_level: "high"
+        max_recommendations: 5
+        feedback_learning: true
+      capabilities:
+        - recommend_actions
+        - suggest_products
+        - predict_user_needs
+        - record_feedback
+        - get_user_profile
+
+  interaction_channels:
+    - type: "web_interface"
+      supported_features: ["chat", "visualization", "export"]
+      response_time_target_ms: 1000
+    - type: "mobile_app"
+      supported_features: ["push_notifications", "offline_mode", "camera_integration"]
+      response_time_target_ms: 1500
+    - type: "voice_assistant"
+      supported_features: ["voice_commands", "text_to_speech"]
+      response_time_target_ms: 2000
+
+  personalization_settings:
+    learning_rate: 0.1
+    memory_size: 1000
+    privacy_compliance: "gdpr"
+    data_retention_days: 90
+
+# ═══════════════════════════════════════════════════════════
+#  技能注册表（全局）
+# ═══════════════════════════════════════════════════════════
+skill_registry:
+  weather_skill:
+    module: "skills.weather_skill"
+    class: "WeatherSkill"
+    version: "1.0.0"
+    status: "active"
+    dependencies: ["aiohttp"]
+
+  crop_skill:
+    module: "skills.crop_skill"
+    class: "CropSkill"
+    version: "1.0.0"
+    status: "active"
+    dependencies: []
+
+  pest_skill:
+    module: "skills.pest_skill"
+    class: "PestSkill"
+    version: "1.0.0"
+    status: "active"
+    dependencies: []
+
+  blockchain_skill:
+    module: "skills.blockchain_skill"
+    class: "BlockchainSkill"
+    version: "1.0.0"
+    status: "active"
+    dependencies: []
+
+  device_skill:
+    module: "skills.device_skill"
+    class: "DeviceSkill"
+    version: "1.0.0"
+    status: "active"
+    dependencies: ["aiohttp"]
+
+  nlp_skill:
+    module: "skills.nlp_skill"
+    class: "NLPSkill"
+    version: "1.0.0"
+    status: "active"  # 已实现（原: pending）
+    dependencies: []
+
+  recommendation_skill:
+    module: "skills.recommendation_skill"
+    class: "RecommendationSkill"
+    version: "1.0.0"
+    status: "active"  # 已实现（原: pending）
+    dependencies: []
+
+# ═══════════════════════════════════════════════════════════
+#  全局配置
+# ═══════════════════════════════════════════════════════════
+global:
+  log_level: "INFO"
+  skill_timeout_seconds: 30
+  max_concurrent_skills: 8
+  health_check_interval_seconds: 60
+  backup_enabled: true
+  backup_interval_hours: 24
+
+  monitoring:
+    enabled: true
+    metrics_collection: true
+    alerting_enabled: true
+    performance_thresholds:
+      cpu_usage: "80%"
+      memory_usage: "85%"
+      response_time: "2000ms"
+
+  security:
+    authentication_required: true
+    encryption_enabled: true
+    audit_logging: true
+    data_anonymization: false
+
+# ═══════════════════════════════════════════════════════════
+#  技能依赖关系
+# ═══════════════════════════════════════════════════════════
+skill_dependencies:
+  orchestrator_agent:
+    requires: []
+    optional: []
+    orchestrates: ["decision_engine_agent", "blockchain_agent",
+                   "edge_computing_agent", "user_interaction_agent"]
+
+  decision_engine_agent:
+    requires: ["weather_skill", "crop_skill", "pest_skill"]
+    optional: ["blockchain_skill"]
+
+  blockchain_agent:
+    requires: ["blockchain_skill"]
+    optional: []
+
+  edge_computing_agent:
+    requires: ["device_skill"]
+    optional: ["weather_skill"]
+
+  user_interaction_agent:
+    requires: ["nlp_skill", "recommendation_skill"]
+    optional: ["crop_skill", "pest_skill"]
+
+# ═══════════════════════════════════════════════════════════
+#  初始化顺序（协调者最先，用户交互最后）
+# ═══════════════════════════════════════════════════════════
+initialization_order:
+  - "global"
+  - "orchestrator_agent"     # 协调者优先注册
+  - "edge_computing_agent"   # 边缘计算次之（采集数据）
+  - "blockchain_agent"       # 区块链服务
+  - "decision_engine_agent"  # 决策引擎
+  - "user_interaction_agent" # 用户接口最后
+
+# ═══════════════════════════════════════════════════════════
+#  测试配置
+# ═══════════════════════════════════════════════════════════
+testing:
+  mock_mode: true
+  test_data_path: "test_data/"
+  skill_validation_enabled: true
+  performance_testing_interval_hours: 24
+  agent_integration_test: true  # 新增：启用多智能体集成测试

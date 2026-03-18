@@ -1,0 +1,45 @@
+{
+  "cpu": {
+    "percent": 18.7,
+    "count": 8,
+    "frequency": 3601.0
+  },
+  "memory": {
+    "percent": 58.9,
+    "available": 14085836800,
+    "used": 20227874816,
+    "total": 34313711616
+  },
+  "disk": {
+    "percent": 18.7,
+    "used": 40075350016,
+    "free": 174023397376,
+    "total": 214098747392
+  },
+  "network": {
+    "bytes_sent": 250780737,
+    "bytes_recv": 2671630634,
+    "packets_sent": 1090366,
+    "packets_recv": 2541833
+  },
+  "process": {
+    "pid": 1832,
+    "create_time": 1772366626.151489,
+    "memory_info": {
+      "rss": 496541696,
+      "vms": 954138624,
+      "num_page_faults": 140363,
+      "peak_wset": 500162560,
+      "wset": 496541696,
+      "peak_paged_pool": 1851272,
+      "paged_pool": 1813392,
+      "peak_nonpaged_pool": 145128,
+      "nonpaged_pool": 100792,
+      "pagefile": 954138624,
+      "peak_pagefile": 954798080,
+      "private": 954138624
+    },
+    "cpu_percent": 0.0
+  },
+  "timestamp": "2026-03-01T20:14:05.942868"
+}

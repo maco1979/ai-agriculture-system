@@ -1,0 +1,13 @@
+apiVersion: v2
+name: backend-core
+version: 1.0.0
+description: AI农业平台后端核心服务
+keywords:
+  - ai
+  - agriculture
+  - backend
+  - core
+maintainers:
+  - name: AI Assistant
+    email: ai@example.com
+appVersion: 1.0.0

@@ -1,0 +1,12 @@
+apiVersion: v2
+name: api-gateway
+version: 1.0.0
+description: AI农业平台API网关服务
+keywords:
+  - ai
+  - agriculture
+  - api-gateway
+maintainers:
+  - name: AI Assistant
+    email: ai@example.com
+appVersion: 1.0.0

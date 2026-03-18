@@ -1,0 +1,18 @@
+{
+  "appId": "com.ai-decision-system.app",
+  "productName": "AI决策系统",
+  "copyright": "Copyright © 2026 AI决策系统",
+  "directories": {
+    "output": "dist-build"
+  },
+  "files": [
+    "electron-main.js",
+    "dist-vite/**/*"
+  ],
+  "win": {
+    "target": [
+      "portable"
+    ],
+    "icon": "src/assets/icon.ico"
+  }
+}

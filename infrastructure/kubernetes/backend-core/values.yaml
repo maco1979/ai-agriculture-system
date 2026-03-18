@@ -1,0 +1,53 @@
+# 默认配置值
+
+replicaCount: 2
+
+image:
+  repository: backend-core
+  tag: 1.0.0
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8000"
+
+podSecurityContext:
+  fsGroup: 1000
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+
+resources:
+  limits:
+    cpu: 1
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+service:
+  type: ClusterIP
+  port: 8000
+
+config:
+  server:
+    host: "0.0.0.0"
+    port: 8000
+    environment: "production"
+  database:
+    url: "postgresql://user:password@postgres:5432/ai_platform"
+  redis:
+    url: "redis://redis:6379"
+  cors:
+    origins: ["*"]
+  monitoring:
+    enabled: true
+    prometheusPort: 9090

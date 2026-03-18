@@ -1,0 +1,64 @@
+# 默认配置值
+
+replicaCount: 2
+
+image:
+  repository: api-gateway
+  tag: 1.0.0
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
+
+podSecurityContext:
+  fsGroup: 1000
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+
+resources:
+  limits:
+    cpu: 1
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+service:
+  type: LoadBalancer
+  port: 8080
+
+config:
+  server:
+    host: "0.0.0.0"
+    port: 8080
+    environment: "production"
+  services:
+    backendCore:
+      url: "http://backend-core:8000"
+    decisionService:
+      url: "http://decision-service:8001"
+    edgeComputing:
+      url: "http://edge-computing:8002"
+    blockchain:
+      url: "http://blockchain-integration:8003"
+    monitoring:
+      url: "http://monitoring-service:8004"
+  cors:
+    origins: ["*"]
+  security:
+    rateLimit:
+      windowMs: 15 * 60 * 1000
+      max: 100
+  monitoring:
+    enabled: true
+    prometheusPort: 9090

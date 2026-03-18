@@ -1,0 +1,13 @@
+apiVersion: v2
+name: decision-service
+version: 1.0.0
+description: AI农业平台决策服务
+keywords:
+  - ai
+  - agriculture
+  - decision
+  - service
+maintainers:
+  - name: AI Assistant
+    email: ai@example.com
+appVersion: 1.0.0

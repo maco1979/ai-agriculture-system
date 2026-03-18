@@ -1,0 +1,41 @@
+# OpenClaw 配置文件 — AI农业决策系统接入
+# 将此文件内容合并到 ~/.openclaw/openclaw.json 中的 skills 字段
+# 或整体作为新配置使用
+
+{
+  "skills": [
+    {
+      "name": "ai-agriculture-system",
+      "path": "d:/1.6/1.5/openclaw-integration/skills/ai-agriculture-system",
+      "enabled": true,
+      "description": "AI农业决策系统主控入口 — 系统状态检查、多智能体协同决策流水线、NLP意图路由、个性化推荐"
+    },
+    {
+      "name": "agriculture",
+      "path": "d:/1.6/1.5/openclaw-integration/skills/agriculture",
+      "enabled": true,
+      "description": "农业决策：光配方、生长预测、种植规划、作物推荐"
+    },
+    {
+      "name": "camera-ptz",
+      "path": "d:/1.6/1.5/openclaw-integration/skills/camera-ptz",
+      "enabled": true,
+      "description": "摄像头与PTZ云台控制：画面采集、云台方向/变焦/自动跟踪、作物识别"
+    },
+    {
+      "name": "ai-models",
+      "path": "d:/1.6/1.5/openclaw-integration/skills/ai-models",
+      "enabled": true,
+      "description": "AI模型管理：启停7个核心模型、触发训练、执行推理"
+    },
+    {
+      "name": "system-monitor",
+      "path": "d:/1.6/1.5/openclaw-integration/skills/system-monitor",
+      "enabled": true,
+      "description": "系统监控、区块链溯源、联邦学习管理"
+    }
+  ],
+  "env": {
+    "AGRI_API_BASE": "http://localhost:8001"
+  }
+}

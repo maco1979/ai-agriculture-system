@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: ai-agricultural-decision-system
+metadata:
+  template: azure-container-apps@1.0.0
+
+services:
+  frontend:
+    project: ./frontend
+    language: js
+    host: static-web-app
+    dist: ./dist
+  
+  backend:
+    project: ./backend
+    language: py
+    host: container-app
+    docker:
+      path: ./Dockerfile
+      context: .
+    bindings:
+      http:
+        port: 8000
+
+hooks:
+  preprovision:
+    frontend:
+      - npm install
+      - npm run build
+    backend:
+      - pip install -r requirements.txt
+
+infra:
+  provider: bicep
+  path: ./infra

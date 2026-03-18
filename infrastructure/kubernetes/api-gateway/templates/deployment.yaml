@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "api-gateway.fullname" . }}
+  labels:
+    {{- include "api-gateway.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "api-gateway.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "api-gateway.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: NODE_ENV
+              value: {{ .Values.config.server.environment }}
+            - name: SERVER_HOST
+              value: {{ .Values.config.server.host }}
+            - name: SERVER_PORT
+              value: "{{ .Values.config.server.port }}"
+            - name: BACKEND_CORE_URL
+              value: {{ .Values.config.services.backendCore.url }}
+            - name: DECISION_SERVICE_URL
+              value: {{ .Values.config.services.decisionService.url }}
+            - name: EDGE_COMPUTING_URL
+              value: {{ .Values.config.services.edgeComputing.url }}
+            - name: BLOCKCHAIN_URL
+              value: {{ .Values.config.services.blockchain.url }}
+            - name: MONITORING_URL
+              value: {{ .Values.config.services.monitoring.url }}
+            - name: CORS_ORIGINS
+              value: "{{ join "," .Values.config.cors.origins }}"
+            - name: MONITORING_ENABLED
+              value: "{{ .Values.config.monitoring.enabled }}"
+            - name: PROMETHEUS_PORT
+              value: "{{ .Values.config.monitoring.prometheusPort }}"
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

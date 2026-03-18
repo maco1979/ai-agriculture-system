@@ -1,0 +1,39 @@
+# 火山引擎容器镜像构建配置
+# 使用火山引擎CR的镜像构建功能，无需本地Docker
+
+apiVersion: cr.volcengine.com/v1
+kind: BuildTask
+metadata:
+  name: ai-agriculture-build
+  namespace: ai-agriculture
+spec:
+  # 镜像仓库配置
+  registry:
+    endpoint: cr.volcengine.com
+    namespace: ai-agriculture
+    
+  # 构建任务列表
+  builds:
+    # 后端核心镜像
+    - name: backend-core
+      dockerfilePath: backend/Dockerfile
+      contextPath: backend/
+      tag: latest
+      
+    # API网关镜像
+    - name: api-gateway
+      dockerfilePath: microservices/api-gateway/Dockerfile
+      contextPath: microservices/api-gateway/
+      tag: latest
+      
+    # 前端Web镜像
+    - name: frontend-web
+      dockerfilePath: microservices/frontend-web/Dockerfile
+      contextPath: microservices/frontend-web/
+      tag: latest
+      
+    # 决策服务镜像
+    - name: decision-service
+      dockerfilePath: decision-service/Dockerfile
+      contextPath: decision-service/
+      tag: latest

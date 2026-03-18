@@ -1,0 +1,30 @@
+# Terraform 变量示例文件
+# 复制此文件为 terraform.tfvars 并填入实际值
+
+# 火山引擎访问密钥 (必填)
+# 从 https://console.volcengine.com/iam/keymanage/ 获取
+secret_key = "你的SecretKey"
+
+# 地域 (可选，默认: cn-beijing)
+# region = "cn-beijing"
+
+# 可用区 (可选，默认: cn-beijing-a)
+# availability_zone = "cn-beijing-a"
+
+# 集群名称 (可选，默认: ai-agriculture-cluster)
+# cluster_name = "ai-agriculture-cluster"
+
+# 命名空间 (可选，默认: ai-agriculture)
+# namespace = "ai-agriculture"
+
+# 节点实例类型 (可选，默认: ecs.g2i.xlarge - 4核8G)
+# node_instance_type = "ecs.g2i.xlarge"
+
+# 节点数量配置 (可选)
+# min_nodes = 3
+# max_nodes = 10
+# desired_nodes = 3
+
+# 磁盘大小 (可选，单位: GB)
+# system_disk_size = 40
+# data_disk_size = 100
