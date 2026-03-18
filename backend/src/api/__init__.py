@@ -28,8 +28,8 @@ def create_app() -> FastAPI:
     import asyncio
     from core.services import model_manager
     
-    # 获取环境变量判断是否为生产环境
-    is_production = os.getenv("ENV", "development").lower() == "production"
+    # 获取环境变量判断是否为生产环境（支持 ENV 或 ENVIRONMENT）
+    is_production = os.getenv("ENV", os.getenv("ENVIRONMENT", "development")).lower() == "production"
     
     app = FastAPI(
         title="AI项目API服务",
@@ -67,6 +67,7 @@ def create_app() -> FastAPI:
             "https://your-domain.com",
             "https://www.your-domain.com",
             "https://api.your-domain.com",
+            "https://ai-agriculture-system.vercel.app",
             # 添加其他生产域名...
         ]
         app.add_middleware(

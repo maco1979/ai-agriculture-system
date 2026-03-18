@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: cr.volcengine.com/ai-agriculture
-  ACCESS_KEY_ID: AKLTZWM5Y2Y2MTZhMWI2NDNmNmExNzk2ZmYwNzhmOTFkYWY
+  ACCESS_KEY_ID: ${{ secrets.VOLCENGINE_ACCESS_KEY_ID }}
 
 jobs:
   build-and-deploy:

@@ -11,7 +11,7 @@
 ```
 ✅ Supabase URL: https://hephjdmwdaqgiwyppfbd.supabase.co
 ✅ Database: 已连接 (6个表已存在)
-✅ anon key: sb_publishable_6RC2Qu0yjbsTNwZw9J3KHg_BRGE6c5c
+✅ anon key: [SUPABASE_ANON_KEY]
 ✅ service_role key: [SUPABASE_SERVICE_ROLE_KEY]
 ✅ JWT Secret: %^A_HOh):Q{Vm=s4|V}*9,r|qY@f#:.}
 ```
@@ -42,7 +42,7 @@ git commit -m "准备部署AI农业决策系统"
    ```
    DATABASE_URL=postgresql://postgres.hephjdmwdaqgiwyppfbd:[SUPABASE_DB_PASSWORD]@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres
    SUPABASE_URL=https://hephjdmwdaqgiwyppfbd.supabase.co
-   SUPABASE_ANON_KEY=sb_publishable_6RC2Qu0yjbsTNwZw9J3KHg_BRGE6c5c
+   SUPABASE_ANON_KEY=[SUPABASE_ANON_KEY]
    SUPABASE_SERVICE_ROLE_KEY=[SUPABASE_SERVICE_ROLE_KEY]
    JWT_SECRET=%^A_HOh):Q{Vm=s4|V}*9,r|qY@f#:.}
    ENVIRONMENT=production
@@ -65,7 +65,7 @@ git commit -m "准备部署AI农业决策系统"
    VITE_API_URL=[你的Railway后端URL]
    VITE_APP_NAME=AI农业决策系统
    VITE_SUPABASE_URL=https://hephjdmwdaqgiwyppfbd.supabase.co
-   VITE_SUPABASE_ANON_KEY=sb_publishable_6RC2Qu0yjbsTNwZw9J3KHg_BRGE6c5c
+   VITE_SUPABASE_ANON_KEY=[SUPABASE_ANON_KEY]
    ```
 7. **点击** "Deploy"
 8. **获取** 前端URL（如：`https://ai-agriculture.vercel.app`）

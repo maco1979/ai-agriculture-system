@@ -12,7 +12,7 @@
 ### Supabase配置
 - [x] Supabase项目创建: `hephjdmwdaqgiwyppfbd`
 - [x] 项目URL: `https://hephjdmwdaqgiwyppfbd.supabase.co`
-- [x] anon/public key: `sb_publishable_6RC2Qu0yjbsTNwZw9J3KHg_BRGE6c5c`
+- [x] anon/public key: `[SUPABASE_ANON_KEY]`
 - [x] 数据库连接字符串模板
 
 ### 开发环境
