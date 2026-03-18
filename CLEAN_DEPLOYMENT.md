@@ -82,10 +82,10 @@ cp frontend/components.json clean_deployment/frontend/
 ## 环境变量设置
 
 ### Railway后端环境变量
-- `DATABASE_URL`: `postgresql://postgres:Sxjo5lYuU75gLXuk@db.hephjdmwdaqgiwyppfbd.supabase.co:5432/postgres`
+- `DATABASE_URL`: `postgresql://postgres:[SUPABASE_DB_PASSWORD]@db.hephjdmwdaqgiwyppfbd.supabase.co:5432/postgres`
 - `SUPABASE_URL`: `https://hephjdmwdaqgiwyppfbd.supabase.co`
-- `SUPABASE_ANON_KEY`: `sb_publishable_6RC2Qu0yjbsTNwZw9J3KHg_BRGE6c5c`
-- `SUPABASE_SERVICE_ROLE_KEY`: `sb_secret_kJ_BMUKXooA1UPOh7PqyCg_Pk4T1E8q`
+- `SUPABASE_ANON_KEY`: `[SUPABASE_ANON_KEY]`
+- `SUPABASE_SERVICE_ROLE_KEY`: `[SUPABASE_SERVICE_ROLE_KEY]`
 - `JWT_SECRET`: `your-secure-jwt-secret`
 - `ENVIRONMENT`: `production`
 

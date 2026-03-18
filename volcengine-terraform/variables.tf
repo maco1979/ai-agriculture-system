@@ -3,7 +3,7 @@
 variable "access_key_id" {
   description = "火山引擎Access Key ID"
   type        = string
-  default     = "AKLTZWM5Y2Y2MTZhMWI2NDNmNmExNzk2ZmYwNzhmOTFkYWY"
+  default     = "[VOLCENGINE_ACCESS_KEY_ID]"
 }
 
 variable "secret_key" {

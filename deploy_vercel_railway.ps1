@@ -1,4 +1,4 @@
-# AI农业决策系统 - Vercel + Railway 一键部署脚本
+﻿# AI农业决策系统 - Vercel + Railway 一键部署脚本
 
 Write-Host "🚀 开始部署到 Vercel + Railway + Supabase..." -ForegroundColor Green
 Write-Host "预计时间: 15-30分钟" -ForegroundColor Yellow
@@ -143,9 +143,9 @@ function Generate-DeploymentGuide {
 
 ### 已配置信息
 - 项目URL: https://hephjdmwdaqgiwyppfbd.supabase.co
-- 数据库连接: postgresql://postgres:Sxjo5lYuU75gLXuk@db.hephjdmwdaqgiwyppfbd.supabase.co:5432/postgres
-- anon key: sb_publishable_6RC2Qu0yjbsTNwZw9J3KHg_BRGE6c5c
-- service_role key: sb_secret_kJ_BMUKXooA1UPOh7PqyCg_Pk4T1E8q
+- 数据库连接: postgresql://postgres:[SUPABASE_DB_PASSWORD]@db.hephjdmwdaqgiwyppfbd.supabase.co:5432/postgres
+- anon key: [SUPABASE_ANON_KEY]
+- service_role key: [SUPABASE_SERVICE_ROLE_KEY]
 
 ### 初始化步骤
 1. 登录Supabase: https://supabase.com/dashboard

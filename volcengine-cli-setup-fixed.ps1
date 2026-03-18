@@ -7,7 +7,7 @@ param(
 )
 
 # 配置变量
-$AccessKeyId = "AKLTZWM5Y2Y2MTZhMWI2NDNmNmExNzk2ZmYwNzhmOTFkYWY"
+$AccessKeyId = "[VOLCENGINE_ACCESS_KEY_ID]"
 $ConsoleUrl = "https://console.volcengine.com/iam/keymanage"
 
 Write-Host "========================================" -ForegroundColor Cyan

@@ -89,8 +89,8 @@ Write-Host "✅ 创建Supabase测试脚本: test_supabase.py" -ForegroundColor G
 Write-Host "`n📋 配置摘要:" -ForegroundColor Cyan
 Write-Host "Supabase项目: hephjdmwdaqgiwyppfbd" -ForegroundColor White
 Write-Host "数据库URL: postgresql://postgres:******@db.hephjdmwdaqgiwyppfbd.supabase.co:5432/postgres" -ForegroundColor White
-Write-Host "anon key: sb_publishable_6RC2Qu0yjbsTNwZw9J3KHg_BRGE6c5c" -ForegroundColor White
-Write-Host "service_role key: sb_secret_kJ_BMUKXooA1UPOh7PqyCg_Pk4T1E8q" -ForegroundColor White
+Write-Host "anon key: [SUPABASE_ANON_KEY]" -ForegroundColor White
+Write-Host "service_role key: [SUPABASE_SERVICE_ROLE_KEY]" -ForegroundColor White
 
 # 5. 下一步指令
 Write-Host "`n🚀 下一步行动:" -ForegroundColor Yellow
