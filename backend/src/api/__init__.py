@@ -11,7 +11,7 @@ apply_flax_patch()
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routes import models_router, inference_router, training_router, system_router, edge_router, federated_router, agriculture_router, decision_router, model_training_decision_router, resource_decision_router, decision_monitoring_router, camera_router, performance_router, blockchain_router, ai_control_router, auth_router, jepa_dtmpc_router, community_router, user_router, enterprise_router, monitoring_router
+from .routes import models_router, inference_router, training_router, system_router, edge_router, federated_router, agriculture_router, decision_router, model_training_decision_router, resource_decision_router, decision_monitoring_router, camera_router, performance_router, blockchain_router, ai_control_router, auth_router, jepa_dtmpc_router, community_router, user_router, enterprise_router, monitoring_router, health_router
 
 # 导入安全中间件
 from middleware.security import (
@@ -149,6 +149,9 @@ def create_app() -> FastAPI:
     
     # 注册监控路由（Prometheus/Grafana集成）
     app.include_router(monitoring_router, prefix="/api")
+    
+    # 注册健康检查路由
+    app.include_router(health_router, prefix="/api")
     
     # 根路径
     @app.get("/")
