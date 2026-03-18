@@ -5,7 +5,7 @@
 ### 1. 获取访问凭证
 
 你已经提供了:
-- **Access Key ID**: `AKLTZWM5Y2Y2MTZhMWI2NDNmNmExNzk2ZmYwNzhmOTFkYWY`
+- **Access Key ID**: `[VOLCENGINE_ACCESS_KEY_ID]`
 - **控制台地址**: https://console.volcengine.com/iam/keymanage
 
 **你需要准备**:
