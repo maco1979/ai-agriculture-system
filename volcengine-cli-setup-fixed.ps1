@@ -18,7 +18,7 @@ Write-Host "========================================" -ForegroundColor Cyan
 if ([string]::IsNullOrEmpty($SecretKey)) {
     Write-Host ""
     Write-Host "请输入Secret Key (可在 $ConsoleUrl 查看):" -ForegroundColor Yellow
-    Write-Host "注意: 输入时不会显示字符" -ForegroundColor Gray
+    Write-Host "注意: 输入时不会显示字�? -ForegroundColor Gray
     $secureString = Read-Host -AsSecureString
     $SecretKey = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureString))
 }
@@ -29,11 +29,11 @@ Write-Host "[1/5] 检查volcengine-cli..." -ForegroundColor Yellow
 
 try {
     $volcVersion = volcengine-cli --version 2>$null
-    Write-Host "[OK] volcengine-cli已安装: $volcVersion" -ForegroundColor Green
+    Write-Host "[OK] volcengine-cli已安�? $volcVersion" -ForegroundColor Green
 } catch {
     Write-Host "正在安装volcengine-cli..." -ForegroundColor Cyan
     
-    # 下载并安装
+    # 下载并安�?
     $downloadUrl = "https://github.com/volcengine/volcengine-cli/releases/latest/download/volcengine-cli_windows_amd64.exe"
     $installDir = "$env:LOCALAPPDATA\volcengine-cli"
     $installPath = "$installDir\volcengine-cli.exe"
@@ -85,7 +85,7 @@ Write-Host ""
 Write-Host "[3/5] 配置kubectl访问VKE集群..." -ForegroundColor Yellow
 
 Write-Host ""
-Write-Host "请在火山引擎控制台完成以下操作:" -ForegroundColor Cyan
+Write-Host "请在火山引擎控制台完成以下操�?" -ForegroundColor Cyan
 Write-Host "1. 访问: https://console.volcengine.com/vke/cluster" -ForegroundColor White
 Write-Host "2. 选择你的集群" -ForegroundColor White
 Write-Host "3. 点击'连接信息' -> 'KubeConfig'" -ForegroundColor White
@@ -148,8 +148,8 @@ Write-Host "========================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "后续步骤:" -ForegroundColor Cyan
 Write-Host "1. 运行部署脚本: .\volcengine-deploy-fixed.ps1" -ForegroundColor White
-Write-Host "2. 查看集群状态: kubectl get all -n ai-agriculture" -ForegroundColor White
-Write-Host "3. 查看控制台: https://console.volcengine.com/vke/cluster" -ForegroundColor White
+Write-Host "2. 查看集群状�? kubectl get all -n ai-agriculture" -ForegroundColor White
+Write-Host "3. 查看控制�? https://console.volcengine.com/vke/cluster" -ForegroundColor White
 
 Write-Host ""
 Write-Host "常用命令:" -ForegroundColor Yellow

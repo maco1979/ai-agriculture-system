@@ -40,7 +40,7 @@ git commit -m "准备部署AI农业决策系统"
 5. **选择目录** `backend/`
 6. **配置环境变量**（Railway会自动检测）：
    ```
-   DATABASE_URL=postgresql://postgres.hephjdmwdaqgiwyppfbd:Sxjo5lYuU75gLXuk@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres
+   DATABASE_URL=postgresql://postgres.hephjdmwdaqgiwyppfbd:[SUPABASE_DB_PASSWORD]@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres
    SUPABASE_URL=https://hephjdmwdaqgiwyppfbd.supabase.co
    SUPABASE_ANON_KEY=sb_publishable_6RC2Qu0yjbsTNwZw9J3KHg_BRGE6c5c
    SUPABASE_SERVICE_ROLE_KEY=[SUPABASE_SERVICE_ROLE_KEY]
