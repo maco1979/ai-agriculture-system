@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!.env.aliyun.example
 
 # 虚拟环境
 venv/
