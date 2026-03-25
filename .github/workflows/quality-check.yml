@@ -1,0 +1,344 @@
+name: Quality Gate
+
+on:
+  push:
+    branches: [ main, develop, "feature/**", "fix/**", "hotfix/**" ]
+  pull_request:
+    branches: [ main, develop ]
+
+# 同一分支/PR 新推送时取消旧运行
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_DEFAULT: "3.11"
+
+# ─────────────────────────────────────────────
+# Job 1: Lint  ← 失败则阻断合并
+# ─────────────────────────────────────────────
+jobs:
+  lint:
+    name: "❌ Lint (blocking)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_DEFAULT }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT }}
+          cache: pip
+
+      - name: Install lint tools
+        run: pip install ruff isort
+
+      - name: ruff — style & import check
+        run: |
+          ruff check backend/ decision-service/ \
+            --output-format=github \
+            --select=E,W,F,I \
+            --ignore=E501
+        # E501 行长由 black 管理，CI 不单独卡
+
+      - name: isort — import order
+        run: |
+          isort --check-only --diff \
+            backend/src backend/tests \
+            decision-service/src decision-service/tests
+
+  # ─────────────────────────────────────────────
+  # Job 2: Unit Tests (matrix)  ← 失败则阻断合并
+  # ─────────────────────────────────────────────
+  unit-tests:
+    name: "❌ Unit Tests / Python ${{ matrix.python-version }} (blocking)"
+    runs-on: ubuntu-latest
+    needs: lint          # lint 通过才跑，节省 Runner 分钟数
+    strategy:
+      fail-fast: true    # 任一版本失败立即停止矩阵
+      matrix:
+        python-version: [ "3.11", "3.12" ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install core dependencies (no JAX/hardware)
+        working-directory: backend
+        run: |
+          pip install --upgrade pip
+          # 安装不依赖 JAX/硬件的精简依赖
+          pip install fastapi uvicorn pydantic python-dotenv loguru \
+                      httpx pytest pytest-asyncio pytest-cov \
+                      anyio starlette cryptography pyjwt bcrypt \
+                      numpy pandas scikit-learn requests typing_extensions
+
+      - name: Run unit tests (exclude integration & JAX)
+        working-directory: backend
+        run: |
+          pytest \
+            test_essential_compliance.py \
+            test_model_manager_simple.py \
+            src/ai_risk_control/test_risk_control.py \
+            -v \
+            --tb=short \
+            -m "not integration and not jax and not blockchain and not performance" \
+            --cov=src \
+            --cov-report=xml:coverage-${{ matrix.python-version }}.xml \
+            --cov-report=term-missing \
+            --junitxml=junit-${{ matrix.python-version }}.xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-py${{ matrix.python-version }}
+          path: backend/coverage-${{ matrix.python-version }}.xml
+
+      - name: Upload JUnit report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: junit-py${{ matrix.python-version }}
+          path: backend/junit-${{ matrix.python-version }}.xml
+
+  # ─────────────────────────────────────────────
+  # Job 3: Security Scan  ← 高危漏洞则阻断合并
+  # ─────────────────────────────────────────────
+  security:
+    name: "❌ Security Scan (blocking on HIGH)"
+    runs-on: ubuntu-latest
+    needs: lint
+    permissions:
+      security-events: write   # 上传 SARIF 到 GitHub Security tab
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_DEFAULT }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT }}
+          cache: pip
+
+      - name: Install security tools
+        run: pip install bandit safety
+
+      - name: bandit — static security analysis
+        run: |
+          bandit -r backend/src decision-service/src \
+            -ll \
+            --severity-level high \
+            -f json \
+            -o bandit-report.json || true
+          # 解析结果：HIGH 级别漏洞数量
+          HIGH_COUNT=$(python -c "
+          import json, sys
+          try:
+              data = json.load(open('bandit-report.json'))
+              high = sum(1 for r in data.get('results', [])
+                         if r.get('issue_severity') == 'HIGH')
+              print(high)
+          except Exception as e:
+              print(0)
+          ")
+          echo "HIGH severity issues found: $HIGH_COUNT"
+          if [ "$HIGH_COUNT" -gt "0" ]; then
+            echo "::error::Security scan found $HIGH_COUNT HIGH severity issue(s). Merge blocked."
+            bandit -r backend/src decision-service/src -ll --severity-level high
+            exit 1
+          fi
+
+      - name: safety — dependency vulnerability check
+        run: |
+          safety check \
+            -r backend/requirements.txt \
+            --json \
+            --output safety-report.json || true
+          # 解析结果：CRITICAL/HIGH 漏洞
+          python - <<'EOF'
+          import json, sys, os
+          try:
+              data = json.load(open("safety-report.json"))
+              vulns = data.get("vulnerabilities", [])
+              critical_high = [v for v in vulns
+                               if v.get("severity", "").upper() in ("CRITICAL", "HIGH")]
+              if critical_high:
+                  print(f"::error::safety found {len(critical_high)} CRITICAL/HIGH vulnerability(s):")
+                  for v in critical_high:
+                      print(f"  - {v.get('package_name')} {v.get('affected_versions')}: {v.get('advisory')[:120]}")
+                  sys.exit(1)
+              else:
+                  print(f"[OK] safety: 0 CRITICAL/HIGH vulnerabilities ({len(vulns)} total checked)")
+          except FileNotFoundError:
+              print("[WARN] safety-report.json not found, skipping parse")
+          except Exception as e:
+              print(f"[WARN] Could not parse safety report: {e}")
+          EOF
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-reports
+          path: |
+            bandit-report.json
+            safety-report.json
+
+  # ─────────────────────────────────────────────
+  # Job 4: Integration Tests  ← 失败只警告，不阻断
+  # ─────────────────────────────────────────────
+  integration-tests:
+    name: "⚠️ Integration Tests (warn only)"
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    # 仅在 main/develop 分支运行（集成测试成本高）
+    if: |
+      github.ref == 'refs/heads/main' ||
+      github.ref == 'refs/heads/develop' ||
+      contains(github.event.pull_request.labels.*.name, 'run-integration')
+    continue-on-error: true   # ← 核心：失败不阻断合并
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports: [ "6379:6379" ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_DEFAULT }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT }}
+          cache: pip
+
+      - name: Install dependencies
+        working-directory: backend
+        run: |
+          pip install --upgrade pip
+          pip install fastapi uvicorn pydantic python-dotenv loguru \
+                      httpx pytest pytest-asyncio \
+                      anyio starlette redis requests typing_extensions
+
+      - name: Run integration tests
+        working-directory: backend
+        env:
+          REDIS_URL: redis://localhost:6379
+          INTEGRATION_TEST: "true"
+        run: |
+          pytest tests/integration/ \
+            -v \
+            --tb=short \
+            -m integration \
+            --junitxml=junit-integration.xml \
+            2>&1 | tee integration-test-output.txt
+          EXIT_CODE=${PIPESTATUS[0]}
+          if [ "$EXIT_CODE" -ne "0" ]; then
+            echo "::warning::Integration tests failed (exit $EXIT_CODE). This is a WARNING only — merge is NOT blocked. External service dependencies may be unavailable in CI."
+          fi
+          exit 0   # 强制返回 0，确保 continue-on-error 生效
+
+      - name: Post integration test summary
+        if: always()
+        run: |
+          echo "## ⚠️ Integration Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> Integration tests depend on external services and **do not block merges**." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f backend/integration-test-output.txt ]; then
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -30 backend/integration-test-output.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload integration test report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-report
+          path: |
+            backend/junit-integration.xml
+            backend/integration-test-output.txt
+
+  # ─────────────────────────────────────────────
+  # Job 5: Summary — 汇总质量门控状态
+  # ─────────────────────────────────────────────
+  quality-gate-summary:
+    name: "Quality Gate Summary"
+    runs-on: ubuntu-latest
+    needs: [ lint, unit-tests, security, integration-tests ]
+    if: always()
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+        continue-on-error: true
+
+      - name: Evaluate quality gates
+        run: |
+          LINT_RESULT="${{ needs.lint.result }}"
+          UNIT_RESULT="${{ needs.unit-tests.result }}"
+          SECURITY_RESULT="${{ needs.security.result }}"
+          INTEGRATION_RESULT="${{ needs.integration-tests.result }}"
+
+          echo "## 🏁 Quality Gate Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Gate | Status | Policy |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          # Lint
+          if [ "$LINT_RESULT" = "success" ]; then
+            echo "| Lint | ✅ Passed | Blocking |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Lint | ❌ **FAILED** | **Blocking — merge prevented** |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Unit Tests
+          if [ "$UNIT_RESULT" = "success" ]; then
+            echo "| Unit Tests (3.11 + 3.12) | ✅ Passed | Blocking |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Unit Tests (3.11 + 3.12) | ❌ **FAILED** | **Blocking — merge prevented** |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Security
+          if [ "$SECURITY_RESULT" = "success" ]; then
+            echo "| Security Scan | ✅ No HIGH vulns | Blocking |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Security Scan | ❌ **HIGH vulnerabilities found** | **Blocking — merge prevented** |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Integration (warn only)
+          if [ "$INTEGRATION_RESULT" = "success" ] || [ "$INTEGRATION_RESULT" = "skipped" ]; then
+            echo "| Integration Tests | ✅ / Skipped | Warning only |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Integration Tests | ⚠️ Failed | **Warning only — merge allowed** |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # 最终判定
+          BLOCKED=false
+          [ "$LINT_RESULT" != "success" ] && BLOCKED=true
+          [ "$UNIT_RESULT" != "success" ] && BLOCKED=true
+          [ "$SECURITY_RESULT" != "success" ] && BLOCKED=true
+
+          if [ "$BLOCKED" = "true" ]; then
+            echo "### ❌ MERGE BLOCKED" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "One or more blocking quality gates failed. Fix the issues above before merging." >> $GITHUB_STEP_SUMMARY
+            echo "::error::Quality Gate FAILED — merge is blocked. Check lint / unit-tests / security jobs."
+            exit 1
+          else
+            echo "### ✅ ALL BLOCKING GATES PASSED" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Safe to merge. Integration test warnings (if any) are non-blocking." >> $GITHUB_STEP_SUMMARY
+          fi

@@ -11,9 +11,39 @@ import pickle
 from pathlib import Path
 
 # 添加项目根目录到Python路径
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "src")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "src")))
 
-from core.services.model_manager import ModelManager, ModelMetadata
+from core.services.model_manager import ModelManager
+
+# ModelMetadata 是内部数据类，通过 create_model 接口操作，这里用 dict 替代
+class ModelMetadata:
+    """测试用的简单元数据类（与 ModelManager 内部格式保持一致）"""
+    def __init__(self, model_id: str, model_type: str, hyperparameters: dict, description: str = ""):
+        self.model_id = model_id
+        self.model_type = model_type
+        self.hyperparameters = hyperparameters
+        self.description = description
+        self.name = f"{model_type}_{model_id}"
+
+    def to_dict(self):
+        return {
+            "model_id": self.model_id,
+            "model_type": self.model_type,
+            "hyperparameters": self.hyperparameters,
+            "description": self.description,
+            "name": self.name,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        obj = cls(
+            model_id=data["model_id"],
+            model_type=data["model_type"],
+            hyperparameters=data.get("hyperparameters", {}),
+            description=data.get("description", ""),
+        )
+        obj.name = data.get("name", obj.name)
+        return obj
 
 def test_model_manager_simple():
     """简单测试模型管理器功能"""
@@ -78,12 +108,12 @@ def test_model_manager_simple():
         print(f"8. 加载模型状态: {loaded_state.keys()}: ✓")
         
         # 测试模型索引更新
-        model_manager._model_index[model_id] = metadata.to_dict()
-        model_manager._save_model_index()
+        model_manager.model_metadata[model_id] = metadata.to_dict()
+        model_manager._save_model_metadata()
         
-        with open(index_file, "r") as f:
+        with open(model_manager.model_storage_path / "metadata.json", "r") as f:
             index_data = json.load(f)
-        print(f"9. 测试模型索引: {model_id in index_data}: ✓")
+        print(f"9. 测试模型索引: {model_id in index_data}: {model_id in index_data}")
         
         # 清理测试文件
         import shutil

@@ -4,7 +4,7 @@
 """
 
 from typing import Optional, Tuple
-from fastapi import APIRouter, HTTPException, status, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, HTTPException, status, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 import cv2
 from cv2 import cvtColor, COLOR_BGR2RGB, imencode
@@ -15,6 +15,12 @@ import logging
 from src.core.services.camera_controller import CameraController
 from src.core.services.ptz_camera_controller import (
     PTZCameraController, PTZProtocol, PTZAction, get_ptz_controller
+)
+from src.core.services.vision_reasoning_pipeline import (
+    VisionReasoningPipeline, VisionScene, get_vision_pipeline
+)
+from src.core.services.yolo_detection_service import (
+    YOLODetectionService, get_yolo_service, reset_yolo_service
 )
 
 router = APIRouter(prefix="/camera", tags=["camera"])
@@ -347,11 +353,11 @@ async def get_tracking_status():
         CameraResponse: 包含跟踪状态的响应
     """
     try:
-        status = camera_controller.get_tracking_status()
+        tracking_status = camera_controller.get_tracking_status()
         return CameraResponse(
             success=True,
             message="获取跟踪状态成功",
-            data=status
+            data=tracking_status
         )
     except Exception as e:
         raise HTTPException(
@@ -418,11 +424,11 @@ async def get_recognition_status():
         CameraResponse: 包含识别状态的响应
     """
     try:
-        status = camera_controller.get_recognition_status()
+        recognition_status = camera_controller.get_recognition_status()
         return CameraResponse(
             success=True,
             message="获取识别状态成功",
-            data=status
+            data=recognition_status
         )
     except Exception as e:
         raise HTTPException(
@@ -1026,8 +1032,442 @@ async def ptz_get_status():
             status_code=500,
             detail=f"获取状态错误: {str(e)}"
         )
-    finally:
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 📷  视觉推理管线接口：拍照 → 视觉模型理解 → DeepSeek-R1 深度分析
+# ════════════════════════════════════════════════════════════════════════════
+
+class AnalyzePhotoRequest(BaseModel):
+    """实时拍照分析请求（使用当前摄像头拍照）"""
+    scene: str = "crop_disease"          # crop_disease / growth_status / pest_detection / environment / general
+    extra_context: Optional[str] = None  # 补充背景（作物种类、环境数据等）
+    vision_model: Optional[str] = None   # 覆盖默认视觉模型（留空用配置默认值）
+    skip_reasoning: bool = False         # True=只做视觉理解，跳过R1（调试用）
+
+
+class AnalyzeImageRequest(BaseModel):
+    """上传图像分析请求（传入base64图像）"""
+    image_base64: str                    # base64编码的JPEG/PNG图像
+    scene: str = "crop_disease"
+    extra_context: Optional[str] = None
+    vision_model: Optional[str] = None
+    skip_reasoning: bool = False
+
+
+class VisionAnalysisResponse(BaseModel):
+    """视觉推理管线响应"""
+    success: bool
+    scene: str
+    vision_model_used: str
+    reasoning_model_used: str
+    vision_observation: str   # Step1：视觉AI观察报告
+    reasoning_process: str    # Step2：R1思维链（CoT）
+    conclusion: str           # 最终分析结论
+    full_report: str          # 完整报告（Markdown格式）
+    usage: dict
+
+
+def _parse_scene(scene_str: str) -> VisionScene:
+    """解析场景字符串，无效则回退到 general"""
+    try:
+        return VisionScene(scene_str)
+    except ValueError:
+        return VisionScene.GENERAL
+
+
+@router.post(
+    "/analyze-photo",
+    response_model=VisionAnalysisResponse,
+    summary="📷 实时拍照 → 视觉理解 → R1深度分析",
+    description=(
+        "使用当前摄像头实时拍照，经过两阶段AI分析：\n"
+        "- **Step1**: 视觉模型（MiniCPM-V/LLaVA）理解图像内容\n"
+        "- **Step2**: DeepSeek-R1:70b 对视觉结果进行深度推理分析\n\n"
+        "**支持场景**: crop_disease（病害）| growth_status（生长）| "
+        "pest_detection（害虫）| environment（环境）| general（通用）"
+    ),
+)
+async def analyze_live_photo(
+    request: AnalyzePhotoRequest,
+    pipeline: VisionReasoningPipeline = Depends(get_vision_pipeline),
+):
+    """
+    实时拍照视觉推理管线
+    
+    要求摄像头已通过 /camera/open 打开。
+    """
+    try:
+        # Step0: 拍照
+        frame = camera_controller.take_photo()
+        if frame is None:
+            raise HTTPException(
+                status_code=400,
+                detail="摄像头未打开或拍照失败，请先调用 /camera/open"
+            )
+
+        # 转换为 base64
+        import cv2 as _cv2
+        _, buffer = _cv2.imencode(".jpg", frame, [int(_cv2.IMWRITE_JPEG_QUALITY), 85])
+        image_b64 = base64.b64encode(buffer).decode("utf-8")
+
+        # Step1+2: 管线分析
+        scene = _parse_scene(request.scene)
+        result = await pipeline.analyze(
+            image_base64=image_b64,
+            scene=scene,
+            extra_context=request.extra_context,
+            vision_model=request.vision_model,
+            skip_reasoning=request.skip_reasoning,
+        )
+
+        return VisionAnalysisResponse(success=True, **result)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"实时拍照分析失败: {e}")
+        raise HTTPException(status_code=500, detail=f"视觉分析管线错误: {str(e)}")
+
+
+@router.post(
+    "/analyze-image",
+    response_model=VisionAnalysisResponse,
+    summary="🖼️ 上传图像 → 视觉理解 → R1深度分析",
+    description="传入base64图像，不需要摄像头，适合前端上传历史照片分析。",
+)
+async def analyze_uploaded_image(
+    request: AnalyzeImageRequest,
+    pipeline: VisionReasoningPipeline = Depends(get_vision_pipeline),
+):
+    """
+    上传图像视觉推理管线
+    
+    适用场景：
+    - 前端上传田间巡检照片
+    - 分析历史存档图像
+    - 离线拍照后补充分析
+    """
+    try:
+        scene = _parse_scene(request.scene)
+        result = await pipeline.analyze(
+            image_base64=request.image_base64,
+            scene=scene,
+            extra_context=request.extra_context,
+            vision_model=request.vision_model,
+            skip_reasoning=request.skip_reasoning,
+        )
+        return VisionAnalysisResponse(success=True, **result)
+
+    except Exception as e:
+        logger.error(f"图像分析失败: {e}")
+        raise HTTPException(status_code=500, detail=f"视觉分析管线错误: {str(e)}")
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🎯  YOLOv8 目标检测接口
+#     - /camera/yolo/detect-photo    : 实时拍照 → YOLO检测
+#     - /camera/yolo/detect-image    : 上传图像 → YOLO检测
+#     - /camera/yolo/detect-frame    : 当前帧   → YOLO检测（轻量快速）
+#     - /camera/yolo/model-info      : 查看模型信息
+#     - /camera/yolo/set-model       : 运行时切换模型
+#     - /camera/yolo/set-thresholds  : 调整检测阈值
+# ════════════════════════════════════════════════════════════════════════════
+
+from fastapi import Depends as _Depends
+
+
+class YOLODetectPhotoRequest(BaseModel):
+    """实时拍照 YOLO 检测请求"""
+    scene: str = "general"          # general/pest_detection/crop_disease/growth_monitor
+    return_annotated: bool = True   # 是否返回标注图像
+
+
+class YOLODetectImageRequest(BaseModel):
+    """上传图像 YOLO 检测请求"""
+    image_base64: str               # base64 编码的 JPEG/PNG 图像
+    scene: str = "general"
+    return_annotated: bool = True
+
+
+class YOLOSetModelRequest(BaseModel):
+    """切换 YOLO 模型请求"""
+    model_path: str                 # 如 yolov8n.pt / yolov8s.pt / yolov8m.pt / 自定义路径
+    conf: Optional[float] = None
+    iou: Optional[float] = None
+
+
+class YOLOSetThresholdsRequest(BaseModel):
+    """调整检测阈值请求"""
+    conf: Optional[float] = None    # 置信度阈值 0.01~0.99
+    iou: Optional[float] = None     # NMS IoU 阈值 0.01~0.99
+
+
+class YOLODetectionResponse(BaseModel):
+    """YOLO 检测结果响应"""
+    success: bool
+    scene: str
+    model_used: str
+    inference_time_ms: float
+    image_width: int
+    image_height: int
+    detection_count: int
+    detections: list
+    summary: str
+    annotated_image_b64: Optional[str] = None
+    error: Optional[str] = None
+
+
+@router.post(
+    "/yolo/detect-photo",
+    response_model=YOLODetectionResponse,
+    summary="📸 实时拍照 → YOLO目标检测",
+    description=(
+        "使用摄像头实时拍照，通过 YOLOv8 进行目标检测。\n\n"
+        "**场景（scene）**:\n"
+        "- `pest_detection`: 害虫检测\n"
+        "- `crop_disease`:   病害区域定位\n"
+        "- `growth_monitor`: 植株计数\n"
+        "- `general`:        通用检测\n\n"
+        "**推理速度**: YOLOv8n 约 10-30ms（GPU）| 50-100ms（CPU）"
+    ),
+)
+async def yolo_detect_live_photo(
+    request: YOLODetectPhotoRequest,
+    yolo: YOLODetectionService = _Depends(get_yolo_service),
+):
+    """实时拍照后用 YOLO 进行目标检测"""
+    try:
+        frame = camera_controller.take_photo()
+        if frame is None:
+            raise HTTPException(
+                status_code=400,
+                detail="摄像头未打开或拍照失败，请先调用 /camera/open"
+            )
+        result = yolo.detect_from_frame(
+            frame, scene=request.scene, return_annotated=request.return_annotated
+        )
+        return YOLODetectionResponse(**result.to_dict())
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"YOLO 实时检测失败: {e}")
+        raise HTTPException(status_code=500, detail=f"YOLO 检测错误: {str(e)}")
+
+
+@router.post(
+    "/yolo/detect-image",
+    response_model=YOLODetectionResponse,
+    summary="🖼️ 上传图像 → YOLO目标检测",
+    description="传入 base64 图像，不依赖摄像头，适合历史照片离线检测。",
+)
+async def yolo_detect_uploaded_image(
+    request: YOLODetectImageRequest,
+    yolo: YOLODetectionService = _Depends(get_yolo_service),
+):
+    """上传图像的 YOLO 目标检测"""
+    try:
+        result = yolo.detect_from_base64(
+            request.image_base64,
+            scene=request.scene,
+            return_annotated=request.return_annotated,
+        )
+        return YOLODetectionResponse(**result.to_dict())
+    except Exception as e:
+        logger.error(f"YOLO 图像检测失败: {e}")
+        raise HTTPException(status_code=500, detail=f"YOLO 检测错误: {str(e)}")
+
+
+@router.post(
+    "/yolo/detect-frame",
+    response_model=YOLODetectionResponse,
+    summary="⚡ 当前帧 → YOLO检测（最快）",
+    description=(
+        "直接对摄像头当前帧做检测，无需拍照保存。\n"
+        "适合持续监控场景，延迟最低。"
+    ),
+)
+async def yolo_detect_current_frame(
+    request: YOLODetectPhotoRequest,
+    yolo: YOLODetectionService = _Depends(get_yolo_service),
+):
+    """对摄像头当前帧做 YOLO 检测"""
+    try:
+        frame = camera_controller.get_current_frame()
+        if frame is None:
+            raise HTTPException(
+                status_code=400,
+                detail="摄像头未打开或无帧数据，请先调用 /camera/open"
+            )
+        result = yolo.detect_from_frame(
+            frame, scene=request.scene, return_annotated=request.return_annotated
+        )
+        return YOLODetectionResponse(**result.to_dict())
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"YOLO 帧检测失败: {e}")
+        raise HTTPException(status_code=500, detail=f"YOLO 检测错误: {str(e)}")
+
+
+@router.get(
+    "/yolo/model-info",
+    summary="📋 查看当前 YOLO 模型信息",
+)
+async def yolo_get_model_info(
+    yolo: YOLODetectionService = _Depends(get_yolo_service),
+):
+    """返回当前加载的 YOLO 模型信息"""
+    return yolo.get_model_info()
+
+
+@router.post(
+    "/yolo/set-model",
+    summary="🔄 运行时切换 YOLO 模型",
+    description=(
+        "在不重启服务的情况下切换 YOLO 模型权重。\n\n"
+        "**常用模型**:\n"
+        "- `yolov8n.pt`: 最快（~6ms GPU），适合实时监控\n"
+        "- `yolov8s.pt`: 均衡速度精度\n"
+        "- `yolov8m.pt`: 更高精度，适合精细检测\n"
+        "- `yolov8l.pt`: 大模型高精度\n"
+        "- 自定义农业模型路径：如 `models/plant_disease.pt`"
+    ),
+)
+async def yolo_set_model(request: YOLOSetModelRequest):
+    """切换 YOLO 模型"""
+    try:
+        kwargs = {}
+        if request.conf is not None:
+            kwargs["conf"] = request.conf
+        if request.iou is not None:
+            kwargs["iou"] = request.iou
+        svc = reset_yolo_service(model_path=request.model_path, **kwargs)
+        info = svc.get_model_info()
+        return {"success": True, "message": f"模型已切换为 {request.model_path}", "model_info": info}
+    except Exception as e:
+        logger.error(f"切换 YOLO 模型失败: {e}")
+        raise HTTPException(status_code=500, detail=f"模型切换失败: {str(e)}")
+
+
+@router.post(
+    "/yolo/set-thresholds",
+    summary="⚙️ 调整 YOLO 检测阈值",
+    description=(
+        "动态调整置信度和 IoU 阈值。\n\n"
+        "- **conf**（置信度）低 → 检测更多目标，但误报增加；高 → 检测更精准，可能漏检\n"
+        "- **iou**（NMS IoU）低 → 重叠框更少；高 → 允许更多重叠框\n"
+        "推荐：conf=0.25~0.5，iou=0.45"
+    ),
+)
+async def yolo_set_thresholds(
+    request: YOLOSetThresholdsRequest,
+    yolo: YOLODetectionService = _Depends(get_yolo_service),
+):
+    """动态调整 YOLO 检测阈值"""
+    yolo.update_thresholds(conf=request.conf, iou=request.iou)
+    return {
+        "success": True,
+        "message": "阈值已更新",
+        "conf": yolo._conf,
+        "iou":  yolo._iou,
+    }
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🔗  YOLO + 视觉推理管线联合分析
+#     YOLO 快速定位目标 → minicpm-v 精细理解 → R1 深度分析
+# ════════════════════════════════════════════════════════════════════════════
+
+class YOLOPipelineRequest(BaseModel):
+    """YOLO + 视觉推理联合分析请求"""
+    scene: str = "crop_disease"
+    extra_context: Optional[str] = None
+    skip_reasoning: bool = False
+    yolo_conf: Optional[float] = None   # 临时覆盖置信度
+
+
+class YOLOPipelineResponse(BaseModel):
+    """联合分析响应"""
+    success: bool
+    yolo_result: dict           # YOLO 快速检测结果
+    vision_result: dict         # 视觉推理管线结果（含R1分析）
+    combined_summary: str       # 综合摘要
+
+
+@router.post(
+    "/yolo/analyze-combined",
+    response_model=YOLOPipelineResponse,
+    summary="🔗 YOLO + 视觉AI + R1 三级联合分析",
+    description=(
+        "最完整的分析管线：\n\n"
+        "1. **YOLO**：毫秒级目标定位，输出检测框和目标类别\n"
+        "2. **MiniCPM-V**：深度理解图像内容和病害特征\n"
+        "3. **DeepSeek-R1**：基于前两步结果进行深度推理和防治建议\n\n"
+        "适合需要同时知道\"在哪里\"（YOLO定位）和\"是什么/怎么处理\"（视觉+推理）的场景。"
+    ),
+)
+async def yolo_combined_analysis(
+    request: YOLOPipelineRequest,
+    yolo: YOLODetectionService = _Depends(get_yolo_service),
+    pipeline: VisionReasoningPipeline = _Depends(get_vision_pipeline),
+):
+    """YOLO 目标检测 + 视觉推理管线三级联合分析"""
+    try:
+        # Step0: 拍照
+        frame = camera_controller.take_photo()
+        if frame is None:
+            raise HTTPException(
+                status_code=400,
+                detail="摄像头未打开或拍照失败，请先调用 /camera/open"
+            )
+
+        # 转 base64
+        _, buffer = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
+        image_b64 = base64.b64encode(buffer).decode("utf-8")
+
+        # Step1: YOLO 快速检测
+        if request.yolo_conf:
+            yolo.update_thresholds(conf=request.yolo_conf)
+        yolo_result = yolo.detect_from_frame(frame, scene=request.scene, return_annotated=True)
+
+        # Step2+3: 视觉推理管线（含 minicpm-v + R1）
+        # 把 YOLO 检测摘要注入 extra_context，让 minicpm-v 能结合定位信息分析
+        yolo_context = yolo_result.summary
+        combined_context = (
+            f"[YOLO检测结果] {yolo_context}"
+            + (f"\n[补充背景] {request.extra_context}" if request.extra_context else "")
+        )
+        from src.core.services.vision_reasoning_pipeline import VisionScene as _VS
         try:
-            await websocket.close()
-        except:
-            pass
+            scene_enum = _VS(request.scene)
+        except ValueError:
+            scene_enum = _VS.GENERAL
+
+        vision_r = await pipeline.analyze(
+            image_base64   = image_b64,
+            scene          = scene_enum,
+            extra_context  = combined_context,
+            skip_reasoning = request.skip_reasoning,
+        )
+
+        # 综合摘要
+        det_cnt = yolo_result.detection_count
+        combined_summary = (
+            f"YOLO检测到 {det_cnt} 个目标。\n"
+            f"{yolo_result.summary}\n\n"
+            f"视觉AI分析结论：{vision_r.get('conclusion', '（已跳过R1）')[:300]}"
+        )
+
+        return YOLOPipelineResponse(
+            success=True,
+            yolo_result=yolo_result.to_dict(),
+            vision_result=vision_r,
+            combined_summary=combined_summary,
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"联合分析失败: {e}")
+        raise HTTPException(status_code=500, detail=f"联合分析管线错误: {str(e)}")

@@ -5,9 +5,11 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Dict, List, Optional, Any
+from datetime import datetime, timezone
 import jax.numpy as jnp
 
 from src.core.models.agriculture_model import AgricultureAIService, SpectrumConfig, CropConfig
+from src.core.services.llm_reasoning_service import LLMReasoningService, get_reasoning_service
 
 router = APIRouter(prefix="/agriculture", tags=["agriculture"])
 
@@ -220,7 +222,7 @@ async def contribute_growth_data(request: DataContributionRequest):
         contribution_record = {
             "user_id": request.user_id,
             "crop_type": request.crop_type,
-            "contribution_time": "2024-01-01T00:00:00Z",  # 实际应该使用当前时间
+            "contribution_time": datetime.now(timezone.utc).isoformat(),
             "photon_points": photon_points,
             "growth_data": request.growth_data,
             "media_count": len(request.images or []) + len(request.videos or [])
@@ -309,7 +311,7 @@ def _get_next_stage_info(crop_config: CropConfig, current_day: int) -> Dict[str,
     return {"stage_name": "已完成", "days_until": 0, "preparation_tips": []}
 
 
-def _get_preparation_tips(self, next_stage: str) -> List[str]:
+def _get_preparation_tips(next_stage: str) -> List[str]:
     """获取阶段转换准备建议"""
     tips = {
         "开花期": ["调整营养配方", "准备授粉工具", "优化环境条件"],
@@ -317,3 +319,112 @@ def _get_preparation_tips(self, next_stage: str) -> List[str]:
         "生长期": ["常规管理", "监测生长", "调整环境"]
     }
     return tips.get(next_stage, ["继续当前管理措施"])
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🌱  场景1：作物病害深度诊断（DeepSeek-R1 多步骤推理）
+# ════════════════════════════════════════════════════════════════════════════
+
+class DiseaseAnalysisRequest(BaseModel):
+    """病害深度诊断请求"""
+    crop_type: str                                  # 作物种类
+    symptoms: str                                   # 症状描述
+    environment: Optional[Dict[str, Any]] = None    # 环境数据
+    growth_day: Optional[int] = None                # 生长天数
+    images_description: Optional[str] = None        # 图像观察描述
+
+
+class DiseaseAnalysisResponse(BaseModel):
+    """病害深度诊断响应"""
+    scenario: str
+    crop_type: str
+    model_used: str
+    reasoning_process: str   # DeepSeek-R1 思维链（CoT）
+    conclusion: str          # 最终诊断结论
+    full_response: str       # 完整输出
+    usage: Dict[str, Any]
+
+
+@router.post(
+    "/disease-diagnosis",
+    response_model=DiseaseAnalysisResponse,
+    summary="🌱 作物病害深度诊断",
+    description="使用 DeepSeek-R1 进行多步骤病因推理，输出完整诊断报告与防治方案",
+)
+async def deep_disease_diagnosis(
+    request: DiseaseAnalysisRequest,
+    reasoning_svc: LLMReasoningService = Depends(get_reasoning_service),
+):
+    """
+    作物病害深度诊断接口
+
+    - 多步骤推理：症状识别 → 病因分析 → 鉴别诊断 → 防治方案
+    - 由 DeepSeek-R1:70b 负责（不支持tools，专注推理）
+    - 返回思维链（reasoning_process）+ 最终结论（conclusion）
+    """
+    try:
+        result = await reasoning_svc.diagnose_crop_disease(
+            crop_type=request.crop_type,
+            symptoms=request.symptoms,
+            environment=request.environment,
+            growth_day=request.growth_day,
+            images_description=request.images_description,
+        )
+        return DiseaseAnalysisResponse(**result)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"病害诊断失败: {str(e)}")
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 📊  场景2：农业季度规划报告（DeepSeek-R1 长链条思维规划）
+# ════════════════════════════════════════════════════════════════════════════
+
+class QuarterlyPlanRequest(BaseModel):
+    """季度规划请求"""
+    farm_name: str
+    quarter: str                                          # 如 "2026-Q2"
+    current_metrics: Dict[str, Any]                       # 当前经营指标
+    crop_schedule: Optional[List[Dict[str, Any]]] = None  # 本季作物安排
+    constraints: Optional[str] = None                     # 约束条件
+
+
+class QuarterlyPlanResponse(BaseModel):
+    """季度规划响应"""
+    scenario: str
+    farm_name: str
+    quarter: str
+    model_used: str
+    reasoning_process: str
+    conclusion: str
+    full_response: str
+    usage: Dict[str, Any]
+
+
+@router.post(
+    "/quarterly-plan",
+    response_model=QuarterlyPlanResponse,
+    summary="📊 农业季度规划报告",
+    description="使用 DeepSeek-R1 生成包含月度执行计划、资源配置、风险预案的季度农业决策报告",
+)
+async def generate_quarterly_plan(
+    request: QuarterlyPlanRequest,
+    reasoning_svc: LLMReasoningService = Depends(get_reasoning_service),
+):
+    """
+    农业季度规划报告生成接口
+
+    - 长链条思维：现状评估 → 目标设定 → 分月计划 → 资源配置 → 风险预案
+    - 由 DeepSeek-R1:70b 负责
+    - 返回详细可执行的季度规划报告
+    """
+    try:
+        result = await reasoning_svc.generate_quarterly_plan(
+            farm_name=request.farm_name,
+            quarter=request.quarter,
+            current_metrics=request.current_metrics,
+            crop_schedule=request.crop_schedule,
+            constraints=request.constraints,
+        )
+        return QuarterlyPlanResponse(**result)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"季度规划生成失败: {str(e)}")

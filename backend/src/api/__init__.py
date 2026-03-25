@@ -14,6 +14,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .routes import models_router, inference_router, training_router, system_router, edge_router, federated_router, agriculture_router, decision_router, model_training_decision_router, resource_decision_router, decision_monitoring_router, camera_router, performance_router, blockchain_router, ai_control_router, auth_router, jepa_dtmpc_router, community_router, user_router, enterprise_router, monitoring_router, health_router
 
+# 可选导入量子路由
+try:
+    from .routes import quantum_router
+except ImportError:
+    quantum_router = None
+
 # 导入安全中间件
 from middleware.security import (
     InputValidationMiddleware,
@@ -153,6 +159,10 @@ def create_app() -> FastAPI:
     
     # 注册健康检查路由
     app.include_router(health_router, prefix="/api")
+    
+    # 注册量子服务路由（可选）
+    if quantum_router:
+        app.include_router(quantum_router, prefix="/api")
     
     # 根路径
     @app.get("/")

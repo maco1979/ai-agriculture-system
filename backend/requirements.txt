@@ -8,6 +8,9 @@ jax
 jaxlib
 flax
 
+# Computer Vision / Object Detection
+ultralytics>=8.0.0          # YOLOv8/YOLO11 目标检测
+
 # Data processing
 numpy>=1.26.0
 pandas>=2.0.0

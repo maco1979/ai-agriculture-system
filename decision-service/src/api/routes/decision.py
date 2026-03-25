@@ -2,11 +2,13 @@
 决策API路由
 """
 
-from fastapi import APIRouter, HTTPException
-from typing import Dict, Any, List
+from fastapi import APIRouter, Depends, HTTPException
+from typing import Dict, Any, List, Optional
 from pydantic import BaseModel
 
-router = APIRouter(prefix="/api/decision", tags=["决策"])
+from ...core.llm_router import LLMRouter, ModelRole, get_llm_router
+
+router = APIRouter(prefix="/decision", tags=["决策"])
 
 
 class DecisionRequest(BaseModel):
@@ -30,6 +32,32 @@ class ModelInfo(BaseModel):
     version: str
     status: str
     accuracy: float
+
+
+# ── 新增：深度推理相关模型 ──────────────────────────────────────────────────
+
+class AnalyzeRequest(BaseModel):
+    """深度分析请求（路由到 DeepSeek-R1）"""
+    prompt: str
+    context: Optional[str] = ""
+    force_reasoning: bool = False   # True=强制用推理模型，False=自动路由
+
+
+class AnalyzeResponse(BaseModel):
+    """深度分析响应"""
+    result: str
+    model_used: str
+    role: str   # "reasoning" 或 "agent"
+
+
+class LLMRoutingInfo(BaseModel):
+    """LLM 路由配置信息"""
+    routing_mode: str
+    reasoning_model: str
+    reasoning_model_url: str
+    agent_model: str
+    agent_model_url: str
+    reasoning_keywords: List[str]
 
 
 @router.get("/health")
@@ -119,3 +147,81 @@ async def get_service_status():
         "models_available": 3,
         "uptime": "24h"
     }
+
+
+# ── 新增：双模型路由接口 ────────────────────────────────────────────────────
+
+@router.post("/analyze", response_model=AnalyzeResponse)
+async def deep_analyze(
+    request: AnalyzeRequest,
+    llm: LLMRouter = Depends(get_llm_router),
+):
+    """
+    深度分析接口（路由到 DeepSeek-R1 推理模型）
+
+    适用场景：
+    - 农业病害深度诊断
+    - 作物生长预测分析
+    - 多因素农业决策报告
+    - 复杂问题原因分析
+    """
+    try:
+        force_role = ModelRole.REASONING if request.force_reasoning else None
+        messages = []
+        if request.context:
+            messages.append({"role": "system", "content": request.context})
+        messages.append({"role": "user", "content": request.prompt})
+
+        response = await llm.chat(
+            messages=messages,
+            tools=None,       # 推理模型不传 tools
+            force_role=force_role,
+        )
+
+        # 提取模型信息
+        model_used = response.get("model", "unknown")
+        role = "reasoning" if "deepseek" in model_used.lower() else "agent"
+        result = llm._extract_text(response)
+
+        return AnalyzeResponse(
+            result=result,
+            model_used=model_used,
+            role=role,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"深度分析失败: {str(e)}")
+
+
+@router.post("/execute")
+async def execute_with_tools(
+    prompt: str,
+    system: str = "",
+    llm: LLMRouter = Depends(get_llm_router),
+):
+    """
+    工具执行接口（路由到 qwen2.5 执行模型，支持 OpenClaw tools）
+
+    适用场景：
+    - 调用摄像头/PTZ控制
+    - 触发模型训练/推理
+    - 系统监控告警处理
+    """
+    try:
+        result = await llm.execute(prompt=prompt, system=system)
+        return {
+            "result": llm._extract_text(result),
+            "model_used": result.get("model", "unknown"),
+            "role": "agent",
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"执行失败: {str(e)}")
+
+
+@router.get("/llm-routing", response_model=LLMRoutingInfo)
+async def get_llm_routing(llm: LLMRouter = Depends(get_llm_router)):
+    """
+    查看当前 LLM 路由配置
+    - 显示推理模型和执行模型的配置
+    - 显示自动路由关键词列表
+    """
+    return llm.get_routing_info()

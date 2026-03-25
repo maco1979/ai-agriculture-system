@@ -183,9 +183,10 @@ class CloudEdgeSyncManager:
         if not localization_config.get("enabled", True):
             return True
             
-        # 获取节点信息
-        node_info = self.edge_nodes.get(node_id, {})
-        node_region = node_info.get("region", "CN")  # 默认中国地区
+        # 获取节点信息（节点信息存储在 edge_nodes[node_id]["info"] 中）
+        node_entry = self.edge_nodes.get(node_id, {})
+        node_info = node_entry.get("info", node_entry)  # 兼容直接存储和嵌套存储两种形式
+        node_region = node_info.get("region", "")  # 无默认值，未注册节点返回空字符串
         
         # 检查节点地区是否在允许列表中
         allowed_regions = localization_config.get("allowed_regions", ["CN"])

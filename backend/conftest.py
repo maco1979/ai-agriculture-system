@@ -7,11 +7,11 @@ class FlaxPatchLoader(importlib.abc.MetaPathFinder, importlib.abc.Loader):
     def __init__(self):
         self.target_module = 'flax.linen.kw_only_dataclasses'
         self.original_loader = None
-        print("✓ Flax补丁加载器已创建")
+        print("[OK] Flax patch loader created")
     
     def find_spec(self, fullname, path, target=None):
         if fullname == self.target_module:
-            print(f"✓ 正在拦截模块导入: {fullname}")
+            print(f"[OK] Intercepting module import: {fullname}")
             # 临时移除加载器以避免无限递归
             loader_index = sys.meta_path.index(self)
             sys.meta_path.pop(loader_index)
@@ -30,7 +30,7 @@ class FlaxPatchLoader(importlib.abc.MetaPathFinder, importlib.abc.Loader):
     
     def exec_module(self, module):
         if module.__name__ == self.target_module:
-            print(f"✓ 正在加载并修补模块: {module.__name__}")
+            print(f"[OK] Loading and patching module: {module.__name__}")
             
             # 加载原始模块的源代码
             if hasattr(self.original_loader, 'get_source'):
@@ -68,7 +68,7 @@ class FlaxPatchLoader(importlib.abc.MetaPathFinder, importlib.abc.Loader):
                     
                     # 在模块命名空间中执行修补后的代码
                     exec(patched_source, module.__dict__)
-                    print("✓ Flax模块修补成功")
+                    print("[OK] Flax module patched successfully")
                     return
         
         # 如果无法修补，使用原始加载器
@@ -77,10 +77,10 @@ class FlaxPatchLoader(importlib.abc.MetaPathFinder, importlib.abc.Loader):
 
 # 安装导入钩子
 sys.meta_path.insert(0, FlaxPatchLoader())
-print("✓ Flax导入补丁已安装")
+print("[OK] Flax import patch installed")
 
 # 尝试导入Flax以验证补丁是否生效
-print("✓ 正在验证Flax导入...")
+print("[OK] Verifying Flax import...")
 try:
     # 清除可能已缓存的Flax模块
     if 'flax' in sys.modules:
@@ -90,13 +90,13 @@ try:
         del sys.modules['flax']
     
     from flax.linen import kw_only_dataclasses
-    print("✓ Flax导入成功")
+    print("[OK] Flax imported successfully")
     
     # 验证修复是否有效
     test_class = type('TestClass', (), {})
     test_class.__annotations__ = {}
-    print("✓ 补丁验证成功")
+    print("[OK] Patch validation successful")
 except Exception as e:
-    print(f"✗ Flax导入失败: {e}")
+    print(f"[WARN] Flax import failed: {e}")
     import traceback
     traceback.print_exc()

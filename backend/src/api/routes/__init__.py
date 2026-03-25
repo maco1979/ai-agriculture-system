@@ -23,6 +23,14 @@ from .jepa_dtmpc import router as jepa_dtmpc_router
 from .community import router as community_router
 from .monitoring import router as monitoring_router
 from .fine_tune import router as fine_tune_router
+from .health import router as health_router
+
+# 可选导入量子服务路由（依赖 torch，可能不可用）
+try:
+    from .quantum import router as quantum_router
+except ImportError as e:
+    print(f"量子服务路由导入失败: {e}")
+    quantum_router = None
 
 # 导入用户路由
 try:
@@ -44,7 +52,18 @@ try:
 except ImportError as e:
     blockchain_router = None
 
-__all__ = ["models_router", "inference_router", "training_router", "system_router", "edge_router", "blockchain_router", "federated_router", "agriculture_router", "decision_router", "model_training_decision_router", "resource_decision_router", "decision_monitoring_router", "camera_router", "performance_router", "ai_control_router", "auth_router", "jepa_dtmpc_router", "community_router", "monitoring_router", "fine_tune_router"]
+__all__ = [
+    "models_router", "inference_router", "training_router", "system_router",
+    "edge_router", "blockchain_router", "federated_router", "agriculture_router",
+    "decision_router", "model_training_decision_router", "resource_decision_router",
+    "decision_monitoring_router", "camera_router", "performance_router",
+    "ai_control_router", "auth_router", "jepa_dtmpc_router", "community_router",
+    "monitoring_router", "fine_tune_router", "health_router",
+]
+
+# 动态添加 quantum_router（如果导入成功）
+if quantum_router is not None:
+    __all__.append("quantum_router")
 
 # 动态添加user_router（如果导入成功）
 if user_router is not None:

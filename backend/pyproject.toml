@@ -35,3 +35,33 @@ python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["."]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+# 排除已知有硬依赖问题的文件和虚拟环境
+collect_ignore = [
+    "test_flax_patch.py",
+    "test_simple.py",
+    "test_supabase.py",
+]
+collect_ignore_glob = [
+    "venv/**",
+    "venv312/**",
+    "patched_flax/**",
+]
+markers = [
+    "integration: integration tests (require external services)",
+    "blockchain: requires Hyperledger Fabric SDK",
+    "jax: requires JAX/Flax",
+    "performance: performance benchmarks",
+    "slow: slow tests",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:dateutil.*",
+    "ignore::DeprecationWarning:starlette.*",
+    "ignore::pytest.PytestReturnNotNoneWarning",
+]

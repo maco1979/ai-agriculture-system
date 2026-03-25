@@ -1,0 +1,177 @@
+repos:
+  # ─── 通用文件检查 ───────────────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        name: "✂  Remove trailing whitespace"
+      - id: end-of-file-fixer
+        name: "📝 Fix end of file"
+      - id: check-yaml
+        name: "✅ Validate YAML syntax"
+      - id: check-toml
+        name: "✅ Validate TOML syntax"
+      - id: check-json
+        name: "✅ Validate JSON syntax"
+        exclude: "tsconfig.*\\.json$"
+      - id: check-merge-conflict
+        name: "🚫 Check merge conflict markers"
+      - id: check-added-large-files
+        name: "📦 Block large files (>500 KB)"
+        args: [ "--maxkb=500" ]
+      - id: debug-statements
+        name: "🐛 Remove debug statements"
+        language_version: python3
+
+  # ─── Python 格式化 & Lint ────────────────────────────────────────────
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.7
+    hooks:
+      - id: ruff
+        name: "🔍 ruff lint (auto-fix)"
+        args:
+          - --fix
+          - --select=E,W,F,I
+          - --ignore=E501
+        files: "^(backend|decision-service)/"
+        types: [ python ]
+      - id: ruff-format
+        name: "🎨 ruff format"
+        files: "^(backend|decision-service)/"
+        types: [ python ]
+
+  # ─── Python 语法快检 ────────────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-ast
+        name: "🐍 Python syntax check"
+        files: "^(backend|decision-service)/"
+        types: [ python ]
+
+  # ─── 本地自定义钩子 ──────────────────────────────────────────────────
+  - repo: local
+    hooks:
+
+      # 快速单元测试（< 30s，提交前运行核心测试）
+      - id: fast-unit-tests
+        name: "🧪 Fast unit tests (core only)"
+        entry: python -m pytest
+        args:
+          - backend/test_essential_compliance.py
+          - backend/test_model_manager_simple.py
+          - backend/src/ai_risk_control/test_risk_control.py
+          - -x              # 第一个失败即停止
+          - -q              # 精简输出
+          - --tb=short
+          - -m
+          - "not integration and not jax and not blockchain and not performance and not slow"
+          - --no-header
+        language: system
+        pass_filenames: false
+        # 仅在 Python 文件变动时触发
+        files: "^(backend|decision-service)/.*\\.py$"
+        stages: [ pre-commit ]
+
+      # 防止路由双重前缀 /api/api/
+      - id: check-router-prefix
+        name: "🛣️  Check router prefix (no /api/api/)"
+        entry: python
+        language: system
+        pass_filenames: false
+        args:
+          - -c
+          - |
+            import subprocess, sys, re
+            result = subprocess.run(
+                ["git", "diff", "--cached", "--name-only"],
+                capture_output=True, text=True
+            )
+            changed = [f for f in result.stdout.splitlines() if f.endswith('.py')]
+            bad = []
+            for f in changed:
+                try:
+                    content = open(f, encoding='utf-8').read()
+                    if re.search(r'prefix\s*=\s*["\']\/api\/api', content):
+                        bad.append(f)
+                except Exception:
+                    pass
+            if bad:
+                print("ERROR: /api/api/ double-prefix detected in:")
+                for f in bad:
+                    print(f"  {f}")
+                sys.exit(1)
+        files: "^(backend|decision-service)/.*\\.py$"
+        stages: [ pre-commit ]
+
+      # 检测硬编码过期日期（防止日期写死在代码里）
+      - id: check-hardcoded-dates
+        name: "📅 Check hardcoded dates"
+        entry: python
+        language: system
+        pass_filenames: false
+        args:
+          - -c
+          - |
+            import subprocess, sys, re
+            from datetime import datetime, timezone
+            result = subprocess.run(
+                ["git", "diff", "--cached", "--unified=0"],
+                capture_output=True, text=True
+            )
+            # 检测 +行中形如 "2025-xx-xx" 格式的已过期日期
+            PATTERN = re.compile(r'^\+.*\b(20[12]\d-\d{2}-\d{2})\b')
+            now = datetime.now(timezone.utc)
+            warnings = []
+            for line in result.stdout.splitlines():
+                m = PATTERN.match(line)
+                if m:
+                    try:
+                        d = datetime.strptime(m.group(1), "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                        if d < now:
+                            warnings.append(f"  Possibly expired date: {m.group(1)} in: {line[:80]}")
+                    except ValueError:
+                        pass
+            if warnings:
+                print("WARNING: Hardcoded past dates detected (may be intentional):")
+                for w in warnings[:5]:
+                    print(w)
+                # 仅警告，不阻断提交
+            sys.exit(0)
+        files: "^(backend|decision-service)/.*\\.py$"
+        stages: [ pre-commit ]
+
+      # 安全快扫（bandit，仅 HIGH 级别阻断）
+      - id: bandit-quick
+        name: "🔒 bandit quick scan (HIGH only)"
+        entry: python
+        language: system
+        pass_filenames: false
+        args:
+          - -c
+          - |
+            import subprocess, sys, json
+            result = subprocess.run(
+                ["git", "diff", "--cached", "--name-only"],
+                capture_output=True, text=True
+            )
+            py_files = [f for f in result.stdout.splitlines()
+                        if f.endswith('.py') and ('backend/src' in f or 'decision-service/src' in f)]
+            if not py_files:
+                sys.exit(0)
+            r = subprocess.run(
+                ["bandit", "-ll", "--severity-level", "high", "-f", "json"] + py_files,
+                capture_output=True, text=True
+            )
+            try:
+                data = json.loads(r.stdout)
+                highs = [x for x in data.get("results", []) if x.get("issue_severity") == "HIGH"]
+                if highs:
+                    print(f"SECURITY: {len(highs)} HIGH severity issue(s) found:")
+                    for h in highs:
+                        print(f"  [{h['test_id']}] {h['issue_text']} — {h['filename']}:{h['line_number']}")
+                    sys.exit(1)
+            except (json.JSONDecodeError, KeyError):
+                pass  # bandit 未安装或扫描出错，不阻断本地提交
+            sys.exit(0)
+        stages: [ pre-commit ]

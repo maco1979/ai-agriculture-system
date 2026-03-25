@@ -3,7 +3,7 @@ AI模型训练决策API路由 - 提供AI模型自动训练决策的API接口
 """
 
 from fastapi import APIRouter, HTTPException, Depends
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from pydantic import BaseModel
 import logging
 import time
@@ -17,6 +17,7 @@ from src.core.decision.model_training_decision_engine import (
     TrainingDecisionResult,
     TrainingAction
 )
+from src.core.services.llm_reasoning_service import LLMReasoningService, get_reasoning_service
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/training/decision", tags=["training-decision"])
@@ -373,3 +374,98 @@ async def health_check():
         "service": "training_decision_engine",
         "timestamp": datetime.now().isoformat()
     }
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🔬  场景3：模型训练策略分析（DeepSeek-R1 深度性能诊断 + 调优建议）
+# ════════════════════════════════════════════════════════════════════════════
+
+class TrainingAnalysisRequest(BaseModel):
+    """模型训练策略分析请求"""
+    model_name: str
+    objective: str = "maximize_accuracy"
+    # 当前训练状态（复用现有字段）
+    current_accuracy: float = 0.0
+    best_accuracy: float = 0.0
+    current_loss: float = 1.0
+    best_loss: float = 1.0
+    training_epochs: int = 0
+    convergence_rate: float = 0.0
+    gpu_utilization: float = 0.0
+    memory_usage: float = 0.0
+    cpu_utilization: float = 0.0
+    dataset_size: int = 0
+    data_quality: float = 0.5
+    class_imbalance: float = 0.0
+    model_complexity: float = 1.0
+    recent_improvement: float = 0.0
+    # 历史指标（可选，支持趋势分析）
+    metrics_history: Optional[List[Dict[str, Any]]] = None
+    # 硬件信息（可选）
+    hardware_info: Optional[Dict[str, Any]] = None
+
+
+class TrainingAnalysisResponse(BaseModel):
+    """模型训练策略分析响应"""
+    scenario: str
+    model_name: str
+    objective: str
+    model_used: str
+    reasoning_process: str   # 推理思维链
+    conclusion: str          # 调优结论与建议
+    full_response: str       # 完整分析报告
+    usage: Dict[str, Any]
+
+
+@router.post(
+    "/analyze",
+    response_model=TrainingAnalysisResponse,
+    summary="🔬 模型训练策略深度分析",
+    description="使用 DeepSeek-R1 分析训练性能数据，输出瓶颈定位、根因分析和量化调优建议",
+)
+async def analyze_training_strategy(
+    request: TrainingAnalysisRequest,
+    reasoning_svc: LLMReasoningService = Depends(get_reasoning_service),
+):
+    """
+    模型训练策略分析接口
+
+    - 多步骤分析：性能解读 → 瓶颈定位 → 根因分析 → 调优建议（含具体参数值）
+    - 由 DeepSeek-R1:70b 负责深度推理
+    - 支持传入历史 metrics 进行趋势分析
+
+    **使用场景：**
+    - 模型训练陷入平台期（accuracy 不再提升）
+    - 损失震荡或不收敛
+    - 资源利用率异常（GPU/内存占用过高或过低）
+    - 需要对比不同训练阶段的超参数效果
+    """
+    try:
+        # 组装当前状态字典
+        current_state = {
+            "当前准确率": request.current_accuracy,
+            "最佳准确率": request.best_accuracy,
+            "当前损失":   request.current_loss,
+            "最佳损失":   request.best_loss,
+            "训练轮次":   request.training_epochs,
+            "收敛速率":   request.convergence_rate,
+            "GPU利用率":  f"{request.gpu_utilization:.1%}",
+            "内存占用":   f"{request.memory_usage:.1%}",
+            "CPU利用率":  f"{request.cpu_utilization:.1%}",
+            "数据集大小": request.dataset_size,
+            "数据质量":   request.data_quality,
+            "类别不平衡度": request.class_imbalance,
+            "模型复杂度": request.model_complexity,
+            "近期改善幅度": request.recent_improvement,
+        }
+
+        result = await reasoning_svc.analyze_model_training(
+            model_name=request.model_name,
+            metrics_history=request.metrics_history or [],
+            current_state=current_state,
+            objective=request.objective,
+            hardware_info=request.hardware_info,
+        )
+        return TrainingAnalysisResponse(**result)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"训练策略分析失败: {str(e)}")
