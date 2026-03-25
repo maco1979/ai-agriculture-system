@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export function ForgotPasswordForm({
   className,
@@ -28,12 +29,24 @@ export function ForgotPasswordForm({
     setIsLoading(true);
     setError(null);
 
-    // 简单的模拟发送重置邮件
-    if (email) {
-      await new Promise(resolve => setTimeout(resolve, 800));
+    try {
+      const supabase = createClient();
+      const { error: authError } = await supabase.auth.resetPasswordForEmail(
+        email,
+        {
+          redirectTo: `${window.location.origin}/auth/update-password`,
+        },
+      );
+
+      if (authError) {
+        setError(authError.message);
+        return;
+      }
+
       setSuccess(true);
-    } else {
-      setError("请输入邮箱地址");
+    } catch {
+      setError("发送重置邮件时发生错误，请稍后重试");
+    } finally {
       setIsLoading(false);
     }
   };

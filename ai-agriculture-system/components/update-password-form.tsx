@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export function UpdatePasswordForm({
   className,
@@ -23,17 +24,31 @@ export function UpdatePasswordForm({
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleForgotPassword = async (e: React.FormEvent) => {
+  const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
-    // 简单的模拟更新密码
-    if (password) {
-      await new Promise(resolve => setTimeout(resolve, 800));
+    if (password.length < 8) {
+      setError("密码至少需要 8 位");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const supabase = createClient();
+      const { error: authError } = await supabase.auth.updateUser({ password });
+
+      if (authError) {
+        setError(authError.message);
+        return;
+      }
+
       router.push("/protected");
-    } else {
-      setError("请输入新密码");
+      router.refresh();
+    } catch {
+      setError("更新密码时发生错误，请稍后重试");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -48,14 +63,14 @@ export function UpdatePasswordForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleForgotPassword}>
+          <form onSubmit={handleUpdatePassword}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="password">New password</Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="New password"
+                  placeholder="New password (at least 8 characters)"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

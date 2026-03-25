@@ -1,11 +1,24 @@
-import { redirect } from "next/navigation";
-import { type NextRequest } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { NextResponse, type NextRequest } from "next/server";
 
-// 简化版本：无需 Supabase 验证
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
+  const { searchParams, origin } = new URL(request.url);
+  const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/protected";
 
-  // 直接重定向到受保护页面
-  redirect(next);
+  // 防止开放重定向：只允许以 / 开头且不以 // 开头的相对路径
+  const safeNext =
+    next.startsWith("/") && !next.startsWith("//") ? next : "/protected";
+
+  if (code) {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (!error) {
+      return NextResponse.redirect(`${origin}${safeNext}`);
+    }
+  }
+
+  // 出错时重定向到错误页面
+  return NextResponse.redirect(`${origin}/auth/error?error=invalid_code`);
 }

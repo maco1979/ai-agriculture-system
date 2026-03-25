@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export function SignUpForm({
   className,
@@ -32,17 +33,36 @@ export function SignUpForm({
     setError(null);
 
     if (password !== repeatPassword) {
-      setError("密码不匹配");
+      setError("两次输入的密码不一致");
       setIsLoading(false);
       return;
     }
 
-    // 简单的模拟注册
-    if (email && password) {
-      await new Promise(resolve => setTimeout(resolve, 800));
+    if (password.length < 8) {
+      setError("密码至少需要 8 位");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const supabase = createClient();
+      const { error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/confirm`,
+        },
+      });
+
+      if (authError) {
+        setError(authError.message);
+        return;
+      }
+
       router.push("/auth/sign-up-success");
-    } else {
-      setError("请填写所有字段");
+    } catch {
+      setError("注册时发生意外错误，请稍后重试");
+    } finally {
       setIsLoading(false);
     }
   };

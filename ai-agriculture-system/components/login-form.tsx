@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export function LoginForm({
   className,
@@ -30,14 +31,23 @@ export function LoginForm({
     setIsLoading(true);
     setError(null);
 
-    // 简单的模拟登录验证
-    if (email && password) {
-      // 模拟登录延迟
-      await new Promise(resolve => setTimeout(resolve, 800));
-      // 任意非空账号密码都能登录
+    try {
+      const supabase = createClient();
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError) {
+        setError(authError.message);
+        return;
+      }
+
       router.push("/protected");
-    } else {
-      setError("请输入邮箱和密码");
+      router.refresh();
+    } catch {
+      setError("登录时发生意外错误，请稍后重试");
+    } finally {
       setIsLoading(false);
     }
   };
