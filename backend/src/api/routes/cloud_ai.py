@@ -1,14 +1,15 @@
 """
-云端 AI 对话路由
-提供统一的 AI 问答接口，调用用户配置的云端模型（DeepSeek/OpenAI/混元等）
-无需认证，开箱即用
+AI 对话路由（本地 Ollama + 云端 API）
+支持本地 Ollama（qwen2.5/deepseek-r1/minicpm-v）及各大云端模型，无需认证，开箱即用
 """
 
 from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Optional
 
-from src.core.services.cloud_ai_service import chat_completion, get_model_info
+from src.core.services.cloud_ai_service import (
+    chat_completion, get_model_info, list_ollama_models
+)
 
 router = APIRouter(prefix="/ai", tags=["AI对话"])
 
@@ -18,6 +19,7 @@ class ChatRequest(BaseModel):
     system_prompt: Optional[str] = None
     temperature: Optional[float] = 0.7
     max_tokens: Optional[int] = 2000
+    model: Optional[str] = None   # 可选：指定 Ollama 模型，如 deepseek-r1:70b
 
 
 class AgricultureRequest(BaseModel):
@@ -33,17 +35,86 @@ async def model_info():
     return get_model_info()
 
 
+@router.get("/local-models")
+async def local_models():
+    """
+    列出本地 Ollama 已安装的模型
+    需要 ollama serve 正在运行
+    """
+    return await list_ollama_models()
+
+
+@router.post("/test-local")
+async def test_local_model(model: Optional[str] = None):
+    """
+    一键测试本地 Ollama 连通性
+    - model: 指定要测试的模型名，默认使用 OLLAMA_MODEL
+    - 返回测试结果和响应时间
+    """
+    import time
+    import os
+    from src.core.services.cloud_ai_service import OLLAMA_DEFAULT_MODEL
+
+    target_model = model or os.getenv("OLLAMA_MODEL", OLLAMA_DEFAULT_MODEL)
+    start = time.time()
+
+    # 先检查 Ollama 服务本身
+    models_result = await list_ollama_models()
+    if not models_result.get("success"):
+        return {
+            "success": False,
+            "error": "Ollama 服务未启动",
+            "hint": "请运行: ollama serve",
+            "detail": models_result.get("error", ""),
+        }
+
+    installed = models_result.get("models", [])
+    # 检查目标模型是否已安装
+    model_available = any(
+        target_model == m or target_model.split(":")[0] == m.split(":")[0]
+        for m in installed
+    )
+    if not model_available:
+        return {
+            "success": False,
+            "error": f"模型 '{target_model}' 未安装",
+            "installed_models": installed,
+            "hint": f"请运行: ollama pull {target_model}",
+        }
+
+    # 发一条简单测试消息
+    result = await chat_completion(
+        prompt="用一句话介绍你自己（包括模型名称）。",
+        system_prompt="你是一个农业 AI 助手，请简短回答。",
+        temperature=0.3,
+        max_tokens=100,
+        model_override=target_model,
+    )
+    elapsed = round(time.time() - start, 2)
+
+    return {
+        "success": result.get("success", False),
+        "model_tested": target_model,
+        "installed_models": installed,
+        "elapsed_seconds": elapsed,
+        "response": result.get("content", ""),
+        "error": result.get("error", None),
+    }
+
+
 @router.post("/chat")
 async def ai_chat(req: ChatRequest):
     """
     通用 AI 对话接口
-    自动使用用户在 .env 中配置的云端模型
+    自动使用配置的模型（本地 Ollama 或云端 API）
+    支持 model 字段指定具体 Ollama 模型，如 deepseek-r1:70b
     """
     result = await chat_completion(
         prompt=req.prompt,
         system_prompt=req.system_prompt or "你是一个专业的AI农业决策助手。",
         temperature=req.temperature,
         max_tokens=req.max_tokens,
+        model_override=req.model,
     )
     return result
 
