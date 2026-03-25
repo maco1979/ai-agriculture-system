@@ -8,7 +8,7 @@
 - 风险预警系统
 """
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 __author__ = "AI农业平台团队"
 
 from .risk_control import MigrationRiskController
