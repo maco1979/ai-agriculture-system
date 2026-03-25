@@ -2,6 +2,7 @@
 社区 API 路由 v2
 - SQLite 持久化存储
 - AI 智能体角色 @ 触发自动回复
+- AI 自主发帖（定时 + 事件触发 + 手动触发）
 - 帖子/回复 CRUD
 """
 
@@ -181,12 +182,85 @@ async def api_ask_agent(post_id: int, agent_id: str):
     )
 
 
+# ────────────────────── AI 自主发帖（手动触发）──────────────────────
+
+class TriggerPostRequest(BaseModel):
+    event_type: Optional[str] = None    # 事件类型（见 EVENT_TEMPLATES），不填则随机定时发帖
+    agent_id: Optional[str] = None      # 指定角色，不填则随机
+
+
+@router.post("/ai/trigger-post", status_code=201)
+async def api_trigger_ai_post(body: TriggerPostRequest):
+    """
+    手动触发 AI 角色主动发帖
+    - event_type 不填：随机角色发一篇日常分享
+    - event_type 填写：触发对应事件预警帖（如 high_temperature/pest_risk/system_startup）
+    """
+    import random as _random
+    from src.services.community_agents import AI_AGENTS
+    from src.services.community_scheduler import trigger_event_post, _generate_ai_post, _post_as_agent, TOPIC_POOLS
+
+    # 1. 事件发帖
+    if body.event_type:
+        success = await trigger_event_post(body.event_type)
+        if not success:
+            raise HTTPException(status_code=503, detail="AI 发帖失败，请检查 API Key 或 event_type 是否有效")
+        return {"status": "ok", "type": "event", "event_type": body.event_type}
+
+    # 2. 日常随机发帖
+    agent_id = body.agent_id or _random.choice(list(AI_AGENTS.keys()))
+    topics = TOPIC_POOLS.get(agent_id, ["分享一条农业实用知识"])
+    topic = _random.choice(topics)
+
+    prompt = (
+        f"请围绕话题「{topic}」，写一篇有干货的农业社区帖子正文。"
+        "要有实操建议，结合时令/季节，内容真实专业，语气自然。"
+        "字数控制在 200-400 字之间。"
+    )
+
+    content = await _generate_ai_post(agent_id, prompt)
+    if not content:
+        raise HTTPException(status_code=503, detail="AI 内容生成失败，请检查 API Key 配置")
+
+    agent = AI_AGENTS[agent_id]
+    success = await _post_as_agent(
+        agent_id=agent_id,
+        title=topic,
+        content=content,
+        category="AI分享",
+        tags=agent.get("tags", []),
+    )
+    if not success:
+        raise HTTPException(status_code=500, detail="帖子写入数据库失败")
+
+    return {
+        "status": "ok",
+        "type": "daily",
+        "agent": agent_id,
+        "title": topic,
+    }
+
+
+@router.get("/ai/scheduler-status")
+def api_scheduler_status():
+    """获取 AI 发帖调度器状态"""
+    try:
+        from src.services.community_scheduler import _running, _scheduler_task, _event_monitor_task
+        return {
+            "running": _running,
+            "scheduled_post_active": _scheduler_task is not None and not _scheduler_task.done(),
+            "event_monitor_active": _event_monitor_task is not None and not _event_monitor_task.done(),
+        }
+    except Exception as e:
+        return {"running": False, "error": str(e)}
+
+
 # ────────────────────── 分类 ──────────────────────
 
 @router.get("/categories")
 def api_get_categories():
     """获取所有帖子分类"""
-    return ["种植经验", "AI技术", "科学研究", "提问求助", "病虫害防治", "农业机械"]
+    return ["种植经验", "AI技术", "科学研究", "提问求助", "病虫害防治", "农业机械", "AI分享", "系统预警"]
 
 
 # ────────────────────── 内部工具 ──────────────────────

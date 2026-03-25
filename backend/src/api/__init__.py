@@ -11,7 +11,7 @@ apply_flax_patch()
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routes import models_router, inference_router, training_router, system_router, edge_router, federated_router, agriculture_router, decision_router, model_training_decision_router, resource_decision_router, decision_monitoring_router, camera_router, performance_router, blockchain_router, ai_control_router, auth_router, jepa_dtmpc_router, community_router, user_router, enterprise_router, monitoring_router, cloud_ai_router, health_router
+from .routes import models_router, inference_router, training_router, system_router, edge_router, federated_router, agriculture_router, decision_router, model_training_decision_router, resource_decision_router, decision_monitoring_router, camera_router, performance_router, blockchain_router, ai_control_router, auth_router, jepa_dtmpc_router, community_router, user_router, enterprise_router, monitoring_router, cloud_ai_router, health_router, chat_router
 
 # 导入安全中间件
 from middleware.security import (
@@ -39,16 +39,33 @@ def create_app() -> FastAPI:
         redoc_url="/redoc"
     )
     
-    # 初始化模型管理器
+    # 初始化模型管理器 + 启动社区 AI 调度器
     @app.on_event("startup")
     async def startup_event():
+        import logging
+        _log = logging.getLogger(__name__)
+
         try:
             await model_manager.initialize()
         except Exception as e:
-            import logging
-            logging.getLogger(__name__).warning(
+            _log.warning(
                 f"model_manager 初始化失败（非致命），服务继续运行: {e}"
             )
+
+        # 启动社区 AI 自主发帖调度器（定时发帖 + 事件预警）
+        try:
+            from src.services.community_scheduler import start_scheduler
+            start_scheduler()
+        except Exception as e:
+            _log.warning(f"社区调度器启动失败（非致命）: {e}")
+
+    @app.on_event("shutdown")
+    async def shutdown_event():
+        try:
+            from src.services.community_scheduler import stop_scheduler
+            stop_scheduler()
+        except Exception:
+            pass
     
     # ===== 路径兼容中间件（修复双重/api前缀问题）=====
     @app.middleware("http")
@@ -83,7 +100,7 @@ def create_app() -> FastAPI:
             allow_headers=["Content-Type", "Authorization", "X-Requested-With"],  # ✅ 限制请求头
             max_age=86400,  # ✅ 预检请求缓存1天
         )
-        print("🔒 CORS: 生产环境严格模式（白名单）")
+        print("[CORS] Production mode: strict whitelist")
     else:
         # 开发环境：宽松配置
         development_origins = [
@@ -103,7 +120,7 @@ def create_app() -> FastAPI:
             allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
             allow_headers=["*"],
         )
-        print("🛠️  CORS: 开发环境宽松模式")
+        print("[CORS] Development mode: relaxed")
     
     # 2. 速率限制中间件（防止暴力攻击）
     # 优化：调高限制以适应WebSocket转换后的请求量减少
@@ -157,6 +174,9 @@ def create_app() -> FastAPI:
 
     # 注册云端 AI 路由（核心功能：/api/ai/chat 等接口）
     app.include_router(cloud_ai_router, prefix="/api")
+
+    # 注册聊天路由（/api/chat/completions 流式对话接口）
+    app.include_router(chat_router, prefix="/api")
 
     # 注册健康检查路由（/health）
     app.include_router(health_router)

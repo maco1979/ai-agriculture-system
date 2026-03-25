@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -6,7 +6,7 @@ import {
   MessageSquare, Heart, Share2, Search, PenSquare, Tag,
   ThumbsUp, ChevronDown, ChevronUp, Send, Flame, Clock,
   Star, Sprout, Cpu, FlaskConical, HelpCircle, Bot, Sparkles,
-  RefreshCw, AtSign,
+  RefreshCw, AtSign, Zap, AlertTriangle, Rss,
 } from 'lucide-react'
 import axios from 'axios'
 
@@ -54,6 +54,16 @@ const CATEGORIES = [
   { key: '科学研究',  label: '科学研究', icon: FlaskConical },
   { key: '提问求助',  label: '提问求助', icon: HelpCircle },
   { key: '病虫害防治', label: '病虫害',  icon: Tag },
+  { key: 'AI分享',   label: 'AI分享',   icon: Sparkles },
+  { key: '系统预警',  label: '系统预警', icon: AlertTriangle },
+]
+
+// 可触发的事件类型
+const EVENT_TYPES = [
+  { key: 'system_startup',   label: '系统欢迎帖',   icon: '🚀' },
+  { key: 'high_temperature', label: '高温预警',     icon: '🌡️' },
+  { key: 'low_humidity',    label: '干旱预警',     icon: '💧' },
+  { key: 'pest_risk',       label: '病虫害风险',   icon: '🐛' },
 ]
 
 type SortMode = 'hot' | 'latest'
@@ -147,10 +157,21 @@ export function Community() {
   // 咨询弹窗
   const [askTarget, setAskTarget]   = useState<{ postId: number; agentId: string } | null>(null)
 
+  // AI 自主发帖
+  const [showAIPost, setShowAIPost] = useState(false)
+  const [aiPosting, setAiPosting]   = useState(false)
+  const [selectedAgent, setSelectedAgent] = useState('')
+  const [selectedEvent, setSelectedEvent] = useState('')
+  // 轮询刷新（AI 定时发帖后自动显示新帖）
+  const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
   // ── 初始化 ──
   useEffect(() => {
     fetchAgents()
     fetchPosts()
+    // 每 60 秒自动刷新一次帖子列表（接收 AI 自动发帖）
+    pollTimerRef.current = setInterval(fetchPostsSilent, 60000)
+    return () => { if (pollTimerRef.current) clearInterval(pollTimerRef.current) }
   }, [])
 
   const fetchAgents = async () => {
@@ -175,6 +196,17 @@ export function Community() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // 静默刷新（不显示 loading，用于轮询）
+  const fetchPostsSilent = async () => {
+    try {
+      const params: Record<string, string> = {}
+      if (activeCategory !== 'all') params.category = activeCategory
+      if (searchQuery) params.search = searchQuery
+      const { data } = await API.get('/community/posts', { params })
+      setPosts(data)
+    } catch {}
   }
 
   // 分类/搜索变化时重新拉
@@ -242,6 +274,26 @@ export function Community() {
     }
   }
 
+  // ── AI 自主发帖 ──
+  const handleAIPost = async () => {
+    setAiPosting(true)
+    try {
+      const body: Record<string, string> = {}
+      if (selectedEvent) body.event_type = selectedEvent
+      if (selectedAgent && !selectedEvent) body.agent_id = selectedAgent
+      await API.post('/community/ai/trigger-post', body)
+      setShowAIPost(false)
+      setSelectedAgent('')
+      setSelectedEvent('')
+      // 1.5 秒后刷新帖子列表（等 AI 写库完成）
+      setTimeout(fetchPostsSilent, 1500)
+    } catch (e: any) {
+      alert(e?.response?.data?.detail || 'AI 发帖失败，请检查 API Key 配置')
+    } finally {
+      setAiPosting(false)
+    }
+  }
+
   // ── 发布新帖 ──
   const handlePublish = async () => {
     if (!newTitle.trim() || !newContent.trim()) return
@@ -266,13 +318,111 @@ export function Community() {
     <div className="space-y-6">
       {/* 页面标题 */}
       <div className="bg-gradient-to-r from-tech-primary/10 to-tech-secondary/10 rounded-xl p-6 border border-tech-primary/20">
-        <div className="flex items-center gap-3 mb-2">
-          <Bot className="w-8 h-8 text-tech-primary" />
-          <h1 className="text-3xl font-bold gradient-text">智能体社区</h1>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <Bot className="w-8 h-8 text-tech-primary" />
+            <h1 className="text-3xl font-bold gradient-text">智能体社区</h1>
+            {/* 实时在线指示 */}
+            <span className="flex items-center gap-1.5 text-xs text-green-400 bg-green-400/10
+                             px-2 py-1 rounded-full border border-green-400/20">
+              <Rss className="w-3 h-3 animate-pulse" /> AI 自动更新中
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            {/* AI 自主发帖按钮 */}
+            <Button variant="outline"
+                    className="border-tech-primary/40 text-tech-primary hover:bg-tech-primary/10 gap-1.5"
+                    onClick={() => setShowAIPost(true)}>
+              <Zap className="w-4 h-4" /> 让 AI 发帖
+            </Button>
+            <Button variant="tech" onClick={() => setShowNewPost(true)}>
+              <PenSquare className="w-4 h-4 mr-1.5" /> 发帖
+            </Button>
+          </div>
         </div>
         <p className="text-gray-300">发帖时 <span className="text-tech-primary font-mono">@农业专家</span>、
           <span className="text-tech-primary font-mono">@植保顾问</span> 等 AI 角色，他们会自动参与讨论</p>
       </div>
+
+      {/* AI 自主发帖弹窗 */}
+      {showAIPost && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-tech-dark border border-tech-primary/30 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <div className="flex items-center gap-2 mb-4">
+              <Zap className="w-5 h-5 text-tech-primary" />
+              <h3 className="text-lg font-bold text-white">触发 AI 自主发帖</h3>
+            </div>
+
+            {/* 模式选择 */}
+            <div className="space-y-4">
+              {/* 事件预警帖 */}
+              <div>
+                <p className="text-sm text-gray-400 mb-2 flex items-center gap-1">
+                  <AlertTriangle className="w-3.5 h-3.5 text-yellow-400" /> 事件预警帖（角色由系统自动指定）
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {EVENT_TYPES.map(ev => (
+                    <button key={ev.key}
+                            onClick={() => { setSelectedEvent(ev.key); setSelectedAgent('') }}
+                            className={`p-3 rounded-xl text-sm border transition-all text-left
+                              ${selectedEvent === ev.key
+                                ? 'border-tech-primary bg-tech-primary/15 text-white'
+                                : 'border-white/10 bg-white/5 text-gray-400 hover:border-tech-primary/40'}`}>
+                      <span className="text-base mr-1">{ev.icon}</span> {ev.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <div className="flex-1 h-px bg-white/10" />
+                <span>或</span>
+                <div className="flex-1 h-px bg-white/10" />
+              </div>
+
+              {/* 日常分享帖 - 选角色 */}
+              <div>
+                <p className="text-sm text-gray-400 mb-2 flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5 text-tech-primary" /> 日常分享帖（随机话题）
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  <button onClick={() => { setSelectedAgent(''); setSelectedEvent('') }}
+                          className={`p-2 rounded-xl text-xs border transition-all
+                            ${!selectedAgent && !selectedEvent
+                              ? 'border-tech-primary bg-tech-primary/15 text-white'
+                              : 'border-white/10 bg-white/5 text-gray-400 hover:border-tech-primary/40'}`}>
+                    🎲 随机角色
+                  </button>
+                  {agents.map(ag => (
+                    <button key={ag.id}
+                            onClick={() => { setSelectedAgent(ag.id); setSelectedEvent('') }}
+                            className={`p-2 rounded-xl text-xs border transition-all
+                              ${selectedAgent === ag.id && !selectedEvent
+                                ? 'border-tech-primary bg-tech-primary/15 text-white'
+                                : 'border-white/10 bg-white/5 text-gray-400 hover:border-tech-primary/40'}`}>
+                      {ag.emoji} {ag.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <Button variant="outline" className="flex-1 border-white/20 text-gray-400"
+                      onClick={() => { setShowAIPost(false); setSelectedAgent(''); setSelectedEvent('') }}>
+                取消
+              </Button>
+              <Button variant="tech" className="flex-1" onClick={handleAIPost} disabled={aiPosting}>
+                {aiPosting ? (
+                  <><RefreshCw className="w-4 h-4 mr-1.5 animate-spin" /> AI 撰文中...</>
+                ) : (
+                  <><Zap className="w-4 h-4 mr-1.5" /> 立即发帖</>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* AI 角色入驻区 */}
       {agents.length > 0 && (
@@ -303,7 +453,7 @@ export function Community() {
         </Card>
       )}
 
-      {/* 搜索 + 发帖 */}
+      {/* 搜索栏 */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -314,11 +464,6 @@ export function Community() {
             onChange={e => setSearchQuery(e.target.value)}
           />
         </div>
-        <Button variant="tech" className="flex items-center space-x-2 whitespace-nowrap"
-                onClick={() => setShowNewPost(true)}>
-          <PenSquare className="w-4 h-4" />
-          <span>发布帖子</span>
-        </Button>
       </div>
 
       {/* 发帖弹窗 */}
