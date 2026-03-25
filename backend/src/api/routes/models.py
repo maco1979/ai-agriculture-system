@@ -796,6 +796,92 @@ async def pause_model(model_id: str = Path(..., title="Model ID")):
         )
 
 
+
+
+# ─── 云端模型注册 ─────────────────────────────────────────────────────────────
+
+SUPPORTED_CLOUD_PROVIDERS = {
+    "openai":    {"name": "OpenAI",       "default_model": "gpt-4o-mini"},
+    "deepseek":  {"name": "DeepSeek",     "default_model": "deepseek-chat"},
+    "anthropic": {"name": "Anthropic",    "default_model": "claude-3-5-sonnet-20241022"},
+    "hunyuan":   {"name": "腾讯混元",      "default_model": "hunyuan-standard"},
+    "qwen":      {"name": "阿里通义千问",  "default_model": "qwen-plus"},
+    "zhipu":     {"name": "智谱 GLM",     "default_model": "glm-4-flash"},
+}
+
+
+class CloudImportRequest(BaseModel):
+    """云端模型注册请求"""
+    model_name: str = Field(..., min_length=1, max_length=256, description="模型名称，如 deepseek-chat")
+    provider: str = Field(..., description="服务商，如 openai / deepseek / anthropic")
+    model_type: Optional[str] = Field("nlp", max_length=50)
+    display_name: Optional[str] = Field("", max_length=256)
+    api_key: Optional[str] = Field(None, max_length=512, description="临时 API Key（不写入存储，仅供验证）")
+
+    @validator('provider')
+    def validate_provider(cls, v):
+        if v not in SUPPORTED_CLOUD_PROVIDERS:
+            raise ValueError(f"不支持的服务商: {v}。支持的有: {list(SUPPORTED_CLOUD_PROVIDERS.keys())}")
+        return v
+
+
+@router.post("/cloud-import", response_model=Dict[str, Any], status_code=status.HTTP_201_CREATED)
+async def import_cloud_model(request: CloudImportRequest):
+    """
+    注册云端 API 模型到系统模型库。
+    
+    云端模型不需要下载权重，调用时通过 API Key 访问云服务。
+    注意：api_key 字段不会持久化存储，请在 .env 中配置。
+    """
+    try:
+        provider_info = SUPPORTED_CLOUD_PROVIDERS.get(request.provider, {})
+        display = request.display_name or f"{provider_info.get('name', request.provider)}/{request.model_name}"
+        model_id = f"cloud_{request.provider}_{request.model_name}".replace("/", "-").replace(".", "-")
+
+        model_data = {
+            "name": display,
+            "type": "cloud",
+            "version": "v1.0.0",
+            "status": "ready",
+            "description": f"云端 {provider_info.get('name', request.provider)} 模型",
+            "metadata": {
+                "is_cloud": True,
+                "model_source": "cloud",
+                "provider": request.provider,
+                "provider_name": provider_info.get("name", request.provider),
+                "model_name": request.model_name,
+                "model_type": request.model_type,
+            },
+        }
+
+        result = await model_manager.register_model(model_id, model_data)
+
+        if not result["success"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=result["error"]
+            )
+
+        return {
+            "success": True,
+            "model_id": result["model_id"],
+            "display_name": display,
+            "provider": request.provider,
+            "provider_name": provider_info.get("name", request.provider),
+            "model_name": request.model_name,
+            "is_cloud": True,
+            "message": f"云端模型 {display} 注册成功。请确保 .env 中已配置对应的 API Key。",
+        }
+
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"注册云端模型失败: {str(e)}"
+        )
+
+
 @router.post("/{model_id}/inference/quantized", status_code=status.HTTP_200_OK)
 async def predict_with_quantization(model_id: str, request: QuantizedInferenceRequest):
     """使用量化模型进行推理"""

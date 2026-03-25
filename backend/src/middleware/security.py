@@ -34,42 +34,43 @@ IS_PRODUCTION = ENV.lower() == "production"
 
 # 打印环境信息
 if IS_PRODUCTION:
-    print(f"🔒 安全模式: 生产环境 (ENV={ENV})")
-    print("   - HSTS: 已启用")
-    print("   - 严格CORS: 已启用")
+    print(f"[SECURITY] Production mode: ENV={ENV}")
+    print("   - HSTS: enabled")
+    print("   - Strict CORS: enabled")
 else:
-    print(f"🛠️  开发模式: {ENV}（安全策略宽松）")
+    print(f"[SECURITY] Development mode: {ENV} (relaxed security)")
 
 
 class SecurityConfig:
     """安全配置"""
     
     # SQL注入检测模式
+    # 注意：这些模式仅用于检测明显的攻击载荷，而非阻止正常的SQL关键字使用
     SQL_INJECTION_PATTERNS = [
-        # 基础SQL关键字
-        r"(\b)(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|TRUNCATE|EXEC|EXECUTE)(\b)",
-        r"(\b)(UNION|JOIN|HAVING|GROUP BY|ORDER BY)(\b)",
-        # 注释攻击
+        # 注释攻击（高危险）
         r"(--|#|/\*|\*/)",
-        # 特殊字符序列
+        # 布尔盲注模式（高危险）
         r"(\b)(OR|AND)(\b)\s*\d+\s*=\s*\d+",
         r"'\s*(OR|AND)\s*'?\d+'\s*=\s*'\d+",
-        r";\s*(SELECT|INSERT|UPDATE|DELETE|DROP)",
-        # 常见攻击载荷
-        r"'\s*;\s*--",
-        r"1\s*=\s*1",
         r"'?\s*OR\s*'?1'?\s*=\s*'?1",
-        r"admin\s*'?\s*--",
+        # 堆叠查询（高危险）
+        r";\s*(SELECT|INSERT|UPDATE|DELETE|DROP)",
+        r"'\s*;\s*--",
+        # 联合查询攻击（高危险）
         r"UNION\s+SELECT",
+        r"UNION\s+ALL\s+SELECT",
+        # 文件操作攻击（高危险）
         r"INTO\s+OUTFILE",
+        r"INTO\s+DUMPFILE",
         r"LOAD_FILE",
+        # 时间盲注（高危险）
         r"BENCHMARK\s*\(",
         r"SLEEP\s*\(",
-        # 额外的注入模式
-        r"'\s*OR\s*''\s*=\s*'",  # ' OR ''='
-        r"'\s*OR\s*'[^']*'\s*=\s*'",  # 更通用的模式
-        r"'\s*=\s*'",  # 空字符串比较
-        r"\bOR\b.*=.*",  # 任何OR条件
+        r"WAITFOR\s+DELAY",
+        # 经典绕过模式
+        r"'\s*OR\s*''\s*=\s*'",
+        r"admin\s*'?\s*--",
+        r"'\s*OR\s*'[^']*'\s*=\s*'",
     ]
     
     # XSS攻击检测模式

@@ -6,9 +6,19 @@
 import sqlite3
 import os
 import json
+import re
+import logging
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
+
+# 输入验证常量
+MAX_SEARCH_LENGTH = 100
+MAX_TITLE_LENGTH = 200
+MAX_CONTENT_LENGTH = 10000
+MAX_USER_LENGTH = 50
 
 # 数据库文件路径（存放在 backend/data/ 目录）
 DB_DIR = Path(__file__).parent.parent.parent / "data"
@@ -59,8 +69,29 @@ def init_db():
 
 # ────────────────────────────── 帖子 CRUD ──────────────────────────────
 
+def _validate_input(text: str, max_length: int, field_name: str) -> str:
+    """验证并清理输入文本"""
+    if not text:
+        return text
+    # 截断超长内容
+    if len(text) > max_length:
+        text = text[:max_length]
+    # 移除潜在危险的控制字符
+    text = re.sub(r'[\x00-\x08\x0b-\x0c\x0e-\x1f]', '', text)
+    return text
+
+
 def create_post(user: str, avatar: str, title: str, content: str,
                 category: str, tags: List[str]) -> Dict[str, Any]:
+    # 输入验证
+    user = _validate_input(user, MAX_USER_LENGTH, "user")
+    title = _validate_input(title, MAX_TITLE_LENGTH, "title")
+    content = _validate_input(content, MAX_CONTENT_LENGTH, "content")
+    category = _validate_input(category, 50, "category")
+    # 验证标签
+    if tags:
+        tags = [t[:30] for t in tags[:10]]  # 最多10个标签，每个最多30字符
+
     with get_conn() as conn:
         now = datetime.now().isoformat()
         cur = conn.execute(
@@ -81,6 +112,14 @@ def get_post(post_id: int) -> Optional[Dict[str, Any]]:
 
 def list_posts(category: Optional[str] = None,
                search: Optional[str] = None) -> List[Dict[str, Any]]:
+    # 验证并限制搜索参数
+    if search:
+        search = _validate_input(search, MAX_SEARCH_LENGTH, "search")
+        # 移除可能导致性能问题的通配符
+        search = search.replace('%', '').replace('_', '')
+    if category:
+        category = _validate_input(category, 50, "category")
+
     with get_conn() as conn:
         sql = "SELECT * FROM posts WHERE 1=1"
         params: list = []
@@ -106,6 +145,12 @@ def like_post(post_id: int) -> int:
 
 def create_reply(post_id: int, user: str, avatar: str, content: str,
                  is_ai: bool = False, ai_role_id: Optional[str] = None) -> Dict[str, Any]:
+    # 输入验证
+    user = _validate_input(user, MAX_USER_LENGTH, "user")
+    content = _validate_input(content, MAX_CONTENT_LENGTH, "content")
+    if ai_role_id:
+        ai_role_id = _validate_input(ai_role_id, 50, "ai_role_id")
+
     with get_conn() as conn:
         now = datetime.now().isoformat()
         cur = conn.execute(
@@ -176,7 +221,7 @@ def _seed_demo_posts():
         demo = [
             ("农业科技达人", "https://ui-avatars.com/api/?name=农业&background=22c55e&color=fff",
              "使用 AI 病虫害诊断功能，帮助我减少了40%的农药使用",
-             "今年夏天水稻出现了一种我从来没见过的斑点，上传图片到系统后，AI 几秒就给出了"稻瘟病早期"的诊断，并推荐了低毒防治方案。最终农药用量比去年同期减少了40%，产量反而提升了，强烈推荐大家试试！",
+             '今年夏天水稻出现了一种我从来没见过的斑点，上传图片到系统后，AI 几秒就给出了"稻瘟病早期"的诊断，并推荐了低毒防治方案。最终农药用量比去年同期减少了40%，产量反而提升了，强烈推荐大家试试！',
              "种植经验", ["病虫害", "水稻", "AI诊断"]),
             ("区块链开发者", "https://ui-avatars.com/api/?name=开发&background=6366f1&color=fff",
              "项目的区块链溯源模块解析 — 数据如何做到不可篡改",

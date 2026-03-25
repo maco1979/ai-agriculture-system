@@ -15,7 +15,9 @@ import {
   Trash2,
   Brain,
   RefreshCw,
-  FileDown
+  FileDown,
+  Cloud,
+  Server
 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectLabel, SelectSeparator } from '@/components/ui/select'
 import { useModelsQuery } from '@/hooks/useModelsQuery'
@@ -42,10 +44,12 @@ export function ModelManagement() {
     fileName: ''
   })
   const [marketImportForm, setMarketImportForm] = useState({
+    model_source: 'cloud',        // 'cloud' | 'local'
     model_name_or_path: '',
-    model_format: 'huggingface',
-    model_type: 'transformer',
-    name: ''
+    model_format: 'openai',       // 云端: openai/deepseek/anthropic/hunyuan/qwen/zhipu  本地: huggingface/onnx
+    model_type: 'nlp',
+    name: '',
+    api_key: ''                   // 可选，临时覆盖 .env 中的 Key
   })
   const { data: models = [], isLoading: loading, refetch, isRefetching } = useModelsQuery()
 
@@ -72,7 +76,9 @@ export function ModelManagement() {
     accuracy: model.accuracy ? `${(model.accuracy * 100).toFixed(1)}%` : '--',
     size: model.size ? `${(model.size / 1024 / 1024).toFixed(2)} MB` : '--',
     lastTrained: model.updated_at ? new Date(model.updated_at).toLocaleDateString() : '--',
-    version: model.version || 'v1.0.0'
+    version: model.version || 'v1.0.0',
+    isCloud: (model as any).is_cloud === true || (model as any).model_source === 'cloud',
+    provider: (model as any).provider || '',
   })) || []
 
   const filteredModels = modelList.filter(model =>
@@ -174,18 +180,27 @@ export function ModelManagement() {
           }}>
 
             <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-gradient-to-r from-tech-primary to-tech-secondary rounded-lg flex items-center justify-center">
-                    <Brain className="w-6 h-6 text-white" />
+                    {model.isCloud ? <Cloud className="w-6 h-6 text-white" /> : <Brain className="w-6 h-6 text-white" />}
                   </div>
                   <div>
                     <CardTitle className="text-lg">{model.name}</CardTitle>
                     <CardDescription>{model.type}</CardDescription>
                   </div>
                 </div>
-                <div className={`text-sm font-medium ${getStatusColor(model.status)}`}>
-                  {model.status}
+                <div className="flex flex-col items-end gap-1">
+                  <div className={`text-sm font-medium ${getStatusColor(model.status)}`}>
+                    {model.status}
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                    model.isCloud
+                      ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                      : 'bg-green-500/20 text-green-300 border border-green-500/30'
+                  }`}>
+                    {model.isCloud ? `☁️ ${model.provider || '云端'}` : '💻 本地'}
+                  </span>
                 </div>
               </div>
             </CardHeader>
@@ -527,53 +542,149 @@ export function ModelManagement() {
 
       {/* 从市场导入模型模态框 */}
       {showMarketImportModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <Card className="glass-effect w-full max-w-md">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <Card className="glass-effect w-full max-w-lg">
             <CardHeader>
               <CardTitle>从市场导入模型</CardTitle>
-              <CardDescription>一键导入现有的市场模型（如Hugging Face）</CardDescription>
+              <CardDescription>支持云端 API 模型与本地开源模型（如 Hugging Face）</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
+
+                {/* ── 模型来源切换 ── */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">模型路径或名称</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">模型来源</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setMarketImportForm({ ...marketImportForm, model_source: 'cloud', model_format: 'openai' })}
+                      className={`flex items-center justify-center gap-2 p-3 rounded-lg border text-sm font-medium transition-all ${
+                        marketImportForm.model_source === 'cloud'
+                          ? 'border-tech-primary bg-tech-primary/20 text-tech-primary'
+                          : 'border-gray-700 bg-gray-900 text-gray-400 hover:border-gray-500'
+                      }`}
+                    >
+                      <Cloud className="w-4 h-4" />
+                      云端模型 (API)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMarketImportForm({ ...marketImportForm, model_source: 'local', model_format: 'huggingface' })}
+                      className={`flex items-center justify-center gap-2 p-3 rounded-lg border text-sm font-medium transition-all ${
+                        marketImportForm.model_source === 'local'
+                          ? 'border-tech-primary bg-tech-primary/20 text-tech-primary'
+                          : 'border-gray-700 bg-gray-900 text-gray-400 hover:border-gray-500'
+                      }`}
+                    >
+                      <Server className="w-4 h-4" />
+                      本地模型 (下载)
+                    </button>
+                  </div>
+                  {marketImportForm.model_source === 'cloud' && (
+                    <p className="mt-2 text-xs text-gray-500">通过 API Key 调用，无需本地算力，响应快</p>
+                  )}
+                  {marketImportForm.model_source === 'local' && (
+                    <p className="mt-2 text-xs text-gray-500">下载到本地运行，数据不出境，需要 GPU/CPU 资源</p>
+                  )}
+                </div>
+
+                {/* ── 云端模型配置 ── */}
+                {marketImportForm.model_source === 'cloud' && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">服务商</label>
+                      <select
+                        className="w-full p-2 rounded-md bg-gray-900 border border-gray-700 text-white"
+                        value={marketImportForm.model_format}
+                        onChange={(e) => setMarketImportForm({ ...marketImportForm, model_format: e.target.value, model_name_or_path: '' })}
+                      >
+                        <optgroup label="推荐（价格低廉）">
+                          <option value="deepseek">DeepSeek — deepseek-chat / deepseek-reasoner</option>
+                          <option value="zhipu">智谱 GLM — glm-4-flash / glm-4</option>
+                          <option value="qwen">阿里通义千问 — qwen-plus / qwen-turbo</option>
+                        </optgroup>
+                        <optgroup label="国际云端">
+                          <option value="openai">OpenAI — gpt-4o / gpt-4o-mini</option>
+                          <option value="anthropic">Anthropic — claude-3-5-sonnet</option>
+                        </optgroup>
+                        <optgroup label="国内云端">
+                          <option value="hunyuan">腾讯混元 — hunyuan-standard / pro</option>
+                        </optgroup>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">模型名称</label>
+                      <Input
+                        placeholder={
+                          marketImportForm.model_format === 'deepseek' ? 'deepseek-chat' :
+                          marketImportForm.model_format === 'openai' ? 'gpt-4o-mini' :
+                          marketImportForm.model_format === 'anthropic' ? 'claude-3-5-sonnet-20241022' :
+                          marketImportForm.model_format === 'hunyuan' ? 'hunyuan-standard' :
+                          marketImportForm.model_format === 'qwen' ? 'qwen-plus' :
+                          marketImportForm.model_format === 'zhipu' ? 'glm-4-flash' : '模型名称'
+                        }
+                        value={marketImportForm.model_name_or_path}
+                        onChange={(e) => setMarketImportForm({ ...marketImportForm, model_name_or_path: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">
+                        API Key <span className="text-gray-500 font-normal">（可选，不填则使用 .env 中的配置）</span>
+                      </label>
+                      <Input
+                        type="password"
+                        placeholder="sk-... 或留空使用环境变量"
+                        value={marketImportForm.api_key}
+                        onChange={(e) => setMarketImportForm({ ...marketImportForm, api_key: e.target.value })}
+                      />
+                    </div>
+                  </>
+                )}
+
+                {/* ── 本地模型配置 ── */}
+                {marketImportForm.model_source === 'local' && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">模型格式</label>
+                      <select
+                        className="w-full p-2 rounded-md bg-gray-900 border border-gray-700 text-white"
+                        value={marketImportForm.model_format}
+                        onChange={(e) => setMarketImportForm({ ...marketImportForm, model_format: e.target.value })}
+                      >
+                        <option value="huggingface">Hugging Face（自动下载权重）</option>
+                        <option value="onnx">ONNX（跨平台推理）</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">模型路径或名称</label>
+                      <Input
+                        placeholder="例如: gpt2, bert-base-uncased, HuggingFaceH4/zephyr-7b-beta"
+                        value={marketImportForm.model_name_or_path}
+                        onChange={(e) => setMarketImportForm({ ...marketImportForm, model_name_or_path: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">模型任务类型</label>
+                      <select
+                        className="w-full p-2 rounded-md bg-gray-900 border border-gray-700 text-white"
+                        value={marketImportForm.model_type}
+                        onChange={(e) => setMarketImportForm({ ...marketImportForm, model_type: e.target.value })}
+                      >
+                        <option value="nlp">自然语言处理（文本生成/分类）</option>
+                        <option value="cv">计算机视觉（图像识别/检测）</option>
+                        <option value="multimodal">多模态（图文混合）</option>
+                        <option value="audio">音频处理</option>
+                        <option value="transformer">通用 Transformer</option>
+                      </select>
+                    </div>
+                  </>
+                )}
+
+                {/* ── 公共：显示名称 ── */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">显示名称 <span className="text-gray-500 font-normal">（可选）</span></label>
                   <Input
-                    placeholder="例如: gpt2, bert-base-uncased, HuggingFaceH4/zephyr-7b-beta"
-                    value={marketImportForm.model_name_or_path}
-                    onChange={(e) => setMarketImportForm({ ...marketImportForm, model_name_or_path: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">模型格式</label>
-                  <select
-                    className="w-full p-2 rounded-md bg-gray-900 border border-gray-700 text-white"
-                    value={marketImportForm.model_format}
-                    onChange={(e) => setMarketImportForm({ ...marketImportForm, model_format: e.target.value })}
-                  >
-                    <option value="huggingface">Hugging Face</option>
-                    <option value="onnx">ONNX</option>
-                    <option value="openai">OpenAI</option>
-                    <option value="anthropic">Anthropic</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">模型类型</label>
-                  <select
-                    className="w-full p-2 rounded-md bg-gray-900 border border-gray-700 text-white"
-                    value={marketImportForm.model_type}
-                    onChange={(e) => setMarketImportForm({ ...marketImportForm, model_type: e.target.value })}
-                  >
-                    <option value="transformer">Transformer模型</option>
-                    <option value="cv">计算机视觉</option>
-                    <option value="nlp">自然语言处理</option>
-                    <option value="audio">音频处理</option>
-                    <option value="multimodal">多模态</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">显示名称</label>
-                  <Input
-                    placeholder="模型在系统中的显示名称（可选）"
+                    placeholder="模型在系统中的显示名称"
                     value={marketImportForm.name}
                     onChange={(e) => setMarketImportForm({ ...marketImportForm, name: e.target.value })}
                   />
@@ -583,7 +694,7 @@ export function ModelManagement() {
             <div className="p-4 flex justify-end space-x-2">
               <Button variant="outline" onClick={() => {
                 setShowMarketImportModal(false)
-                setMarketImportForm({ model_name_or_path: '', model_format: 'huggingface', model_type: 'transformer', name: '' })
+                setMarketImportForm({ model_source: 'cloud', model_name_or_path: '', model_format: 'openai', model_type: 'nlp', name: '', api_key: '' })
               }}>
                 取消
               </Button>
@@ -593,24 +704,46 @@ export function ModelManagement() {
                 onClick={async () => {
                   try {
                     if (!marketImportForm.model_name_or_path) return
-                    
-                    const response = await apiClient.loadPretrainedModel(marketImportForm)
-                    if (response.success) {
-                      console.log('从市场导入模型成功:', response.data)
-                      refetch() // 刷新模型列表
-                      setShowMarketImportModal(false)
-                      setMarketImportForm({ model_name_or_path: '', model_format: 'huggingface', model_type: 'transformer', name: '' }) // 重置表单
+
+                    let response
+                    if (marketImportForm.model_source === 'cloud') {
+                      // 云端模型：注册到系统，调用时走 API
+                      response = await apiClient.importCloudModel({
+                        model_name: marketImportForm.model_name_or_path,
+                        provider: marketImportForm.model_format,
+                        model_type: marketImportForm.model_type,
+                        display_name: marketImportForm.name || marketImportForm.model_name_or_path,
+                        api_key: marketImportForm.api_key || undefined,
+                      })
                     } else {
-                      console.error('从市场导入模型失败:', response.error)
-                      // 这里可以添加错误提示
+                      // 本地模型：触发下载/注册
+                      response = await apiClient.loadPretrainedModel({
+                        model_name_or_path: marketImportForm.model_name_or_path,
+                        model_format: marketImportForm.model_format,
+                        model_type: marketImportForm.model_type,
+                        name: marketImportForm.name,
+                      })
+                    }
+
+                    if (response.success) {
+                      toast.success(
+                        marketImportForm.model_source === 'cloud'
+                          ? `云端模型 ${marketImportForm.model_name_or_path} 注册成功`
+                          : `本地模型 ${marketImportForm.model_name_or_path} 导入成功`
+                      )
+                      refetch()
+                      setShowMarketImportModal(false)
+                      setMarketImportForm({ model_source: 'cloud', model_name_or_path: '', model_format: 'openai', model_type: 'nlp', name: '', api_key: '' })
+                    } else {
+                      toast.error(`导入失败: ${response.error || '未知错误'}`)
                     }
                   } catch (error) {
                     console.error('从市场导入模型时发生错误:', error)
-                    // 这里可以添加错误提示
+                    toast.error('导入失败，请检查网络或 API Key')
                   }
                 }}
               >
-                一键导入
+                {marketImportForm.model_source === 'cloud' ? '注册云端模型' : '一键导入'}
               </Button>
             </div>
           </Card>

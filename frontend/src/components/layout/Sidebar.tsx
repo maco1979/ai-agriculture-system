@@ -15,7 +15,9 @@ import {
   Sprout,
   Link2,
   BarChart3,
-  Video
+  Video,
+  Bot,
+  ListTodo
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { queryClient } from '@/lib/query-client';
@@ -30,6 +32,8 @@ interface SidebarProps {
 
 const menuItems = [
   { path: '/', icon: LayoutDashboard, label: '仪表盘' },
+  { path: '/chat', icon: Bot, label: 'AI 对话' },
+  { path: '/tasks', icon: ListTodo, label: '任务中心' },
   { path: '/ai-control', icon: Shield, label: 'AI控制' },
   { path: '/agriculture', icon: Sprout, label: '农业AI' },
   { path: '/models', icon: Brain, label: '模型管理' },

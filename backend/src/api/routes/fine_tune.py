@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from typing import Any, Dict, Optional
 import logging
 
-from ..core.ai_organic_core import get_organic_ai_core
+from src.core.ai_organic_core import get_organic_ai_core
 
 logger = logging.getLogger(__name__)
 

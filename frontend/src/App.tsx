@@ -52,6 +52,9 @@ const PerformanceMonitoring = lazy(() => import('./pages/PerformanceMonitoring')
 const Settings = lazy(() => import('./pages/Settings').then(module => ({ default: module.Settings })))
 const Community = lazy(() => import('./pages/Community'))
 const AIControl = lazy(() => import('./pages/AIControl').then(module => ({ default: module.AIControl })))
+const ChatAssistant = lazy(() => import('./pages/ChatAssistant'))
+const Tasks = lazy(() => import('./pages/Tasks'))
+const TaskManagement = lazy(() => import('./pages/TaskManagement'))
 
 function App() {
   return (
@@ -97,6 +100,12 @@ function App() {
               } />
               <Route path="/ai-control" element={
                 <Layout><Page><AIControl /></Page></Layout>
+              } />
+              <Route path="/chat" element={
+                <Layout><Page><ChatAssistant /></Page></Layout>
+              } />
+              <Route path="/tasks" element={
+                <Layout><Page><Tasks /></Page></Layout>
               } />
 
               {/* 兼容旧路径 */}

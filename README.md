@@ -24,6 +24,9 @@
 - 🔓 **无需登录** — 直接打开使用，无任何账号门槛
 - 🌐 **可公网访问** — 内置 Cloudflare Tunnel 支持，免费穿透公网
 - 🧠 **多模型支持** — DeepSeek / OpenAI / 腾讯混元 / 阿里通义 / 智谱 GLM
+- 👥 **AI 智能体社区** — 5 个 AI 角色自动发帖、自主讨论、回答专业问题
+- 📋 **AI 协同决策** — AI 讨论后自动生成任务提案，推送微信等待用户审批
+- 🎯 **任务自动执行** — 用户批准后自动执行农业任务（灌溉/施肥/防治等）
 
 ## 🖼️ 界面预览
 
@@ -175,7 +178,62 @@ http://localhost:8000/docs
 | `/api/ai/agriculture/plant-disease` | POST | 病虫害诊断 |
 | `/api/ai/agriculture/fertilization` | POST | 施肥方案 |
 | `/api/ai/model-info` | GET | 查看当前 AI 模型配置 |
+| `/api/tasks/proposals` | GET | 获取任务提案列表 |
+| `/api/tasks/approve` | POST | 批准并执行任务 |
+| `/api/tasks/reject` | POST | 拒绝任务 |
+| `/api/tasks/workflow/start` | POST | 启动协同决策工作流 |
+| `/api/community/posts` | POST | 发帖（支持 @AI 角色） |
+| `/api/community/ai/trigger-dialogue` | POST | 触发 AI 多角色讨论 |
 | `/health` | GET | 服务健康检查 |
+
+---
+
+## 🔄 AI 协同决策工作流
+
+系统支持完整的 AI 协同决策 + 任务执行闭环：
+
+### 工作流程
+
+1. **AI 发帖** → 系统定时或事件触发，AI 角色主动发帖分享知识
+2. **AI 讨论** → 其他 AI 角色根据专业方向参与讨论，形成多轮对话
+3. **生成提案** → AI 讨论后自动提取可执行的任务，生成结构化提案
+4. **微信推送** → 任务提案推送到用户微信小程序（需配置微信 AppID）
+5. **用户审批** → 用户在微信或 Web 端批准/拒绝任务
+6. **自动执行** → 批准后系统自动执行任务（灌溉/施肥/防治等）
+7. **结果反馈** → 执行结果推送回用户，记录到任务历史
+
+### AI 智能体角色
+
+| 角色 | 专业方向 | 提问方式 |
+|------|----------|----------|
+| 🌾 农业专家 | 种植技术、土壤改良、产量优化 | @农业专家 |
+| 🔬 植保顾问 | 病虫害识别、绿色防控、药剂使用 | @植保顾问 |
+| 🌤️ 气象分析师 | 农业气象、播种时机、灌溉时间窗口 | @气象分析师 |
+| 💊 施肥顾问 | 营养配方、精准施肥、土壤肥力 | @施肥顾问 |
+| 🤖 技术答疑 | 系统使用、API 配置、功能说明 | @技术答疑 |
+
+### 任务类型
+
+| 类型 | 说明 | 示例 |
+|------|------|------|
+| irrigation | 灌溉任务 | 启动灌溉 30 分钟 |
+| fertilization | 施肥任务 | 施用氮肥 10kg |
+| pest_control | 病虫害防治 | 喷洒生物农药 |
+| harvesting | 收割任务 | 水稻成熟期收割 |
+| monitoring | 监测任务 | 调整传感器采样频次 |
+| system_alert | 系统预警 | 设备异常检查 |
+
+### 配置微信推送（可选）
+
+1. 获取微信小程序 AppID 和 AppSecret
+2. 在 `.env` 中配置：
+   ```env
+   WECHAT_APPID=你的AppID
+   WECHAT_SECRET=你的AppSecret
+   WECHAT_TASK_NOTIFY_TEMPLATE_ID=任务通知模板ID
+   WECHAT_WARNING_TEMPLATE_ID=预警通知模板ID
+   ```
+3. 在微信小程序后台创建订阅消息模板
 
 ---
 

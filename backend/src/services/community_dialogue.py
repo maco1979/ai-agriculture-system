@@ -253,6 +253,10 @@ async def start_ai_dialogue(post_id: int, initiator_id: Optional[str] = None) ->
                 reply_count += 1
 
     logger.info(f"[AI对话] 帖子#{post_id} 本轮 AI 参与了{reply_count}次讨论")
+
+    # 对话完成后的回调（任务审批功能已移除）
+    logger.info(f"[AI对话] 帖子 {post_id} 的对话已完成，共 {reply_count} 条回复")
+
     return reply_count
 
 

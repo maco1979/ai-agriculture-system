@@ -274,6 +274,23 @@ class ApiClient {
     })
   }
 
+  /**
+   * 注册云端模型（API 调用模式，不需要下载权重）
+   */
+  async importCloudModel(data: {
+    model_name: string;
+    provider: string;        // openai | deepseek | anthropic | hunyuan | qwen | zhipu
+    model_type?: string;
+    display_name?: string;
+    api_key?: string;        // 可选临时 Key，不填则使用 .env
+  }): Promise<ApiResponse<Model>> {
+    return this.request<Model>('/api/models/cloud-import', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+
   async updateModel(id: string, modelData: Partial<Model>): Promise<ApiResponse<Model>> {
     return this.request<Model>(`/api/models/${id}`, {
       method: 'PUT',
@@ -954,7 +971,7 @@ class ApiClient {
     fmt: 'csv' | 'json' = 'csv'
   ): Promise<void> {
     try {
-      const BASE = (import.meta as any).env?.VITE_API_URL ?? ''
+      const BASE = import.meta.env.VITE_API_URL ?? ''
 
       const fullUrl = `${BASE}${url}&fmt=${fmt}`
       const resp = await fetch(fullUrl)
