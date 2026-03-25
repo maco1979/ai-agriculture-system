@@ -66,6 +66,9 @@ config.local.*
 *.crt
 *.csr
 
+# 微信小程序配置（含 AppID，使用 project.config.json.example 作为模板）
+project.config.json
+
 # 编辑器
 .vscode/
 .idea/
