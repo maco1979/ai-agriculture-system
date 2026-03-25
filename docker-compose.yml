@@ -1,6 +1,7 @@
 # ============================================================
-# AI农业决策系统 - Docker Compose 生产部署配置
-# 用途：本地测试 + 云服务器一键启动
+# AI农业决策系统 - Docker Compose 配置
+# 用法：docker compose up -d
+# 或者：.\start-local.ps1（Windows） / bash start-local.sh（Linux/Mac）
 # ============================================================
 
 version: '3.9'
@@ -15,13 +16,11 @@ services:
       dockerfile: Dockerfile
     container_name: ai-agri-backend
     restart: unless-stopped
+    env_file:
+      - .env          # 用户填写的 API Key 从这里读取
     environment:
       - PORT=8000
-      - ENVIRONMENT=production
-      - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
-      - JWT_SECRET=${JWT_SECRET}
-      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-*}
+      - REDIS_URL=redis://redis:6379/0
     ports:
       - "8000:8000"
     depends_on:
@@ -32,10 +31,11 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 60s     # AI 模型初始化需要更长时间
     networks:
       - ai-agri-net
     volumes:
+      - backend-data:/app/data
       - backend-logs:/app/logs
     logging:
       driver: "json-file"
@@ -44,7 +44,7 @@ services:
         max-file: "3"
 
   # ──────────────────────────────────────
-  # 前端 Nginx 服务
+  # 前端 React + Nginx 服务
   # ──────────────────────────────────────
   frontend:
     build:
@@ -53,13 +53,11 @@ services:
     container_name: ai-agri-frontend
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - "3000:80"     # 本地访问：http://localhost:3000
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/nginx-health"]
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -72,7 +70,7 @@ services:
         max-file: "3"
 
   # ──────────────────────────────────────
-  # Redis 缓存
+  # Redis 缓存（用于会话/任务队列）
   # ──────────────────────────────────────
   redis:
     image: redis:7-alpine
@@ -88,16 +86,12 @@ services:
       - ai-agri-net
     volumes:
       - redis-data:/data
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "5m"
-        max-file: "2"
 
 networks:
   ai-agri-net:
     driver: bridge
 
 volumes:
+  backend-data:    # SQLite 数据库持久化
   backend-logs:
   redis-data:

@@ -1,41 +1,15 @@
 """
 推理服务API路由
-提供文本生成、图像分类、图像生成等推理功能
+提供文本生成、图像分类等推理功能
+已迁移至云端模型，见 cloud_ai.py
 """
 
 from typing import Any, Dict, List, Optional, Union
 
-import jax.numpy as jnp
-from fastapi import APIRouter, Depends, HTTPException, Header, status
+from fastapi import APIRouter
 from pydantic import BaseModel
 
-# 允许的API密钥列表
-ALLOWED_API_KEYS = {
-    "sk-2a8aa989f4864f32a3131201bcc04ad2"
-}
-
-
-async def verify_api_key(api_key: Optional[str] = Header(None)):
-    """验证API密钥"""
-    if api_key is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="缺少API密钥",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    
-    if api_key not in ALLOWED_API_KEYS:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="无效的API密钥",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    
-    return api_key
-
-# 使用绝对导入
-from src.core.services import inference_engine, model_manager
-from src.core.services.inference_engine import InferenceResult
+from src.core.services import model_manager
 
 router = APIRouter(prefix="/inference", tags=["inference"])
 
