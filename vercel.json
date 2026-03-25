@@ -3,11 +3,14 @@
   "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist",
   "installCommand": "cd frontend && npm install",
-  "rewrites": [
+  "redirects": [
     {
-      "source": "/api/(.*)",
-      "destination": "https://ai-agriculture-backend.up.railway.app/api/$1"
-    },
+      "source": "/api/:match*",
+      "destination": "https://ai-agriculture-backend.up.railway.app/api/:match*",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
     {
       "source": "/(.*)",
       "destination": "/index.html"
