@@ -7,10 +7,10 @@ from datetime import datetime
 import psutil
 import os
 
-router = APIRouter(prefix="/health", tags=["健康检查"])
+router = APIRouter(tags=["健康检查"])
 
 
-@router.get("/")
+@router.get("/health")
 async def health_check():
     """基础健康检查"""
     return {
@@ -21,7 +21,7 @@ async def health_check():
     }
 
 
-@router.get("/detailed")
+@router.get("/health/detailed")
 async def detailed_health_check():
     """详细健康检查"""
     # 获取系统信息
@@ -48,7 +48,7 @@ async def detailed_health_check():
     }
 
 
-@router.get("/ready")
+@router.get("/health/ready")
 async def readiness_check():
     """就绪检查"""
     # 检查关键服务是否就绪
@@ -67,7 +67,7 @@ async def readiness_check():
     }
 
 
-@router.get("/live")
+@router.get("/health/live")
 async def liveness_check():
     """存活检查"""
     return {

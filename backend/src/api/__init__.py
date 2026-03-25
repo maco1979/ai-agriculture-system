@@ -42,7 +42,13 @@ def create_app() -> FastAPI:
     # 初始化模型管理器
     @app.on_event("startup")
     async def startup_event():
-        await model_manager.initialize()
+        try:
+            await model_manager.initialize()
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(
+                f"model_manager 初始化失败（非致命），服务继续运行: {e}"
+            )
     
     # ===== 路径兼容中间件（修复双重/api前缀问题）=====
     @app.middleware("http")

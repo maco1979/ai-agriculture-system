@@ -954,7 +954,8 @@ class ApiClient {
     fmt: 'csv' | 'json' = 'csv'
   ): Promise<void> {
     try {
-      const BASE = (import.meta as any).env?.VITE_API_URL ?? 'http://localhost:8001'
+      const BASE = (import.meta as any).env?.VITE_API_URL ?? ''
+
       const fullUrl = `${BASE}${url}&fmt=${fmt}`
       const resp = await fetch(fullUrl)
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
