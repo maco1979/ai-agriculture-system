@@ -56,7 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null)
     localStorage.removeItem('ai-project-user')
     localStorage.removeItem('ai-project-token')
-    navigate('/login')
+    // 开源免登录版本：logout 后回到首页而非登录页
+    navigate('/')
   }
 
   const value: AuthContextType = {
@@ -78,11 +79,8 @@ export function clearAuthAndRedirect() {
   localStorage.removeItem('ai-project-user')
   localStorage.removeItem('ai-project-token')
   if (typeof window !== 'undefined' && window.location) {
-    if (typeof window.location.assign === 'function') {
-      window.location.assign('/login')
-    } else {
-      window.location.href = '/login'
-    }
+    // 开源免登录版本：清除认证后回到首页
+    window.location.href = '/'
   }
 }
 
