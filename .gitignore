@@ -1,0 +1,77 @@
+# ── Python ──────────────────────────────────
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+venv/
+venv312/
+env/
+.venv/
+
+# ── 环境变量（永远不提交真实密钥！）─────────
+.env
+.env.local
+.env.production
+.env.*.local
+backend/.env
+backend/.env.railway
+
+# ── 微信小程序配置（含 AppID）────────────────
+project.config.json
+
+# ── Node.js ─────────────────────────────────
+node_modules/
+.npm/
+*.tsbuildinfo
+coverage/
+.nyc_output/
+
+# ── 构建产物 ─────────────────────────────────
+frontend/dist/
+.next/
+out/
+
+# ── 日志 ─────────────────────────────────────
+*.log
+logs/
+backend/logs/
+backend/*.log
+app.log
+backend.log
+api.log
+
+# ── IDE ───────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Docker ────────────────────────────────────
+.docker/
+
+# ── 测试产物 ──────────────────────────────────
+.pytest_cache/
+htmlcov/
+.coverage
+test_report.html
+test_report.json
+
+# ── 模型文件（体积过大）──────────────────────
+*.pt
+*.onnx
+*.h5
+*.pkl
+backend/models/
+backend/model_repository/
+
+# ── 临时文件 ─────────────────────────────────
+*.tmp
+*.bak
+.workbuddy/
+__pycache__/
