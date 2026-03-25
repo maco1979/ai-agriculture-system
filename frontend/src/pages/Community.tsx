@@ -68,7 +68,7 @@ const EVENT_TYPES = [
 
 type SortMode = 'hot' | 'latest'
 
-const API = axios.create({ baseURL: '/api' })
+const API = axios.create({ baseURL: '/api', timeout: 90000 })  // 90s 超时，LLM生成需要时间
 
 // ───────────── AI 角色卡片 ─────────────
 function AgentCard({ agent, onAsk }: { agent: AIAgent; onAsk: (id: string) => void }) {
@@ -279,20 +279,29 @@ export function Community() {
   // ── AI 自主发帖 ──
   const handleAIPost = async () => {
     setAiPosting(true)
+    const body: Record<string, string> = {}
+    if (selectedEvent) body.event_type = selectedEvent
+    if (selectedAgent && !selectedEvent) body.agent_id = selectedAgent
+
+    // 立即关弹窗，不阻塞等 LLM
+    setShowAIPost(false)
+    setSelectedAgent('')
+    setSelectedEvent('')
+    setAiPosting(false)
+
     try {
-      const body: Record<string, string> = {}
-      if (selectedEvent) body.event_type = selectedEvent
-      if (selectedAgent && !selectedEvent) body.agent_id = selectedAgent
       await API.post('/community/ai/trigger-post', body)
-      setShowAIPost(false)
-      setSelectedAgent('')
-      setSelectedEvent('')
-      // 1.5 秒后刷新帖子列表（等 AI 写库完成）
-      setTimeout(fetchPostsSilent, 1500)
+      // 发帖请求成功后定时刷新，等AI生成完毕
+      setTimeout(fetchPostsSilent, 3000)
+      setTimeout(fetchPostsSilent, 8000)
     } catch (e: any) {
-      alert(e?.response?.data?.detail || 'AI 发帖失败，请检查 API Key 配置')
-    } finally {
-      setAiPosting(false)
+      const msg = e?.response?.data?.detail || e?.message || 'AI 发帖失败'
+      // 用更友好的方式提示，不阻塞
+      console.warn('[AI发帖]', msg)
+      // 如果是超时以外的错误才弹提示
+      if (!e?.message?.includes('timeout') && !e?.code?.includes('TIMEOUT')) {
+        alert(msg)
+      }
     }
   }
 
@@ -431,12 +440,8 @@ export function Community() {
                       onClick={() => { setShowAIPost(false); setSelectedAgent(''); setSelectedEvent('') }}>
                 取消
               </Button>
-              <Button variant="tech" className="flex-1" onClick={handleAIPost} disabled={aiPosting}>
-                {aiPosting ? (
-                  <><RefreshCw className="w-4 h-4 mr-1.5 animate-spin" /> AI 撰文中...</>
-                ) : (
-                  <><Zap className="w-4 h-4 mr-1.5" /> 立即发帖</>
-                )}
+              <Button variant="tech" className="flex-1" onClick={handleAIPost}>
+                <Zap className="w-4 h-4 mr-1.5" /> 立即发帖
               </Button>
             </div>
           </div>

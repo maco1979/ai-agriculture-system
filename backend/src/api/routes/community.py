@@ -190,64 +190,66 @@ class TriggerPostRequest(BaseModel):
     agent_id: Optional[str] = None      # 指定角色，不填则随机
 
 
-@router.post("/ai/trigger-post", status_code=201)
-async def api_trigger_ai_post(body: TriggerPostRequest):
+async def _do_trigger_post(event_type: Optional[str], agent_id: Optional[str]):
     """
-    手动触发 AI 角色主动发帖
-    - event_type 不填：随机角色发一篇日常分享
-    - event_type 填写：触发对应事件预警帖（如 high_temperature/pest_risk/system_startup）
+    后台执行 AI 发帖（调用 LLM 可能需要 10-30s，不能阻塞 HTTP 响应）
     """
     import random as _random
-    from src.services.community_agents import AI_AGENTS
-    from src.services.community_scheduler import trigger_event_post, _generate_ai_post, _post_as_agent, TOPIC_POOLS
-
-    # 1. 事件发帖
-    if body.event_type:
-        success = await trigger_event_post(body.event_type)
-        if not success:
-            raise HTTPException(status_code=503, detail="AI 发帖失败，请检查 API Key 或 event_type 是否有效")
-        return {"status": "ok", "type": "event", "event_type": body.event_type}
-
-    # 2. 日常随机发帖
-    agent_id = body.agent_id or _random.choice(list(AI_AGENTS.keys()))
-    topics = TOPIC_POOLS.get(agent_id, ["分享一条农业实用知识"])
-    topic = _random.choice(topics)
-
-    prompt = (
-        f"请围绕话题「{topic}」，写一篇有干货的农业社区帖子正文。"
-        "要有实操建议，结合时令/季节，内容真实专业，语气自然。"
-        "字数控制在 200-400 字之间。"
-    )
-
-    content = await _generate_ai_post(agent_id, prompt)
-    if not content:
-        raise HTTPException(status_code=503, detail="AI 内容生成失败，请检查 API Key 配置")
-
-    agent = AI_AGENTS[agent_id]
-    post_obj = await _post_as_agent(
-        agent_id=agent_id,
-        title=topic,
-        content=content,
-        category="AI分享",
-        tags=agent.get("tags", []),
-    )
-    if not post_obj:
-        raise HTTPException(status_code=500, detail="帖子写入数据库失败")
-
-    # 发帖成功后，异步触发其他 AI 角色参与讨论
     import asyncio as _asyncio
-    from src.services.community_scheduler import _trigger_dialogue_after_delay
-    if post_obj.get("id"):
-        _asyncio.create_task(
-            _trigger_dialogue_after_delay(post_obj["id"], initiator_id=agent_id, delay=15.0)
-        )
+    from src.services.community_agents import AI_AGENTS
+    from src.services.community_scheduler import (
+        trigger_event_post, _generate_ai_post, _post_as_agent,
+        _trigger_dialogue_after_delay, TOPIC_POOLS
+    )
+    import logging as _logging
+    _log = _logging.getLogger(__name__)
 
+    try:
+        if event_type:
+            await trigger_event_post(event_type)
+            return
+
+        aid = agent_id or _random.choice(list(AI_AGENTS.keys()))
+        topics = TOPIC_POOLS.get(aid, ["分享一条农业实用知识"])
+        topic = _random.choice(topics)
+        prompt = (
+            f"请围绕话题「{topic}」，写一篇有干货的农业社区帖子正文。"
+            "要有实操建议，结合时令/季节，内容真实专业，语气自然。"
+            "字数控制在 200-400 字之间。"
+        )
+        content = await _generate_ai_post(aid, prompt)
+        if not content:
+            _log.warning(f"[AI发帖] 内容生成失败 agent={aid}，请检查 API Key")
+            return
+
+        agent = AI_AGENTS[aid]
+        post_obj = await _post_as_agent(
+            agent_id=aid, title=topic, content=content,
+            category="AI分享", tags=agent.get("tags", []),
+        )
+        if post_obj and post_obj.get("id"):
+            _asyncio.create_task(
+                _trigger_dialogue_after_delay(post_obj["id"], initiator_id=aid, delay=15.0)
+            )
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"[AI后台发帖] 异常: {e}")
+
+
+@router.post("/ai/trigger-post", status_code=202)
+async def api_trigger_ai_post(body: TriggerPostRequest):
+    """
+    手动触发 AI 角色主动发帖（立即返回 202，后台生成内容）
+    - event_type 不填：随机角色发一篇日常分享
+    - event_type 填写：触发对应事件预警帖（如 high_temperature/pest_risk/system_startup）
+    前端不需要等待，发起请求后直接关弹窗，轮询刷新即可看到新帖
+    """
+    import asyncio as _asyncio
+    _asyncio.create_task(_do_trigger_post(body.event_type, body.agent_id))
     return {
-        "status": "ok",
-        "type": "daily",
-        "agent": agent_id,
-        "title": topic,
-        "post_id": post_obj.get("id"),
+        "status": "accepted",
+        "message": "AI 正在后台生成帖子，请稍后刷新页面查看",
+        "type": "event" if body.event_type else "daily",
     }
 
 
