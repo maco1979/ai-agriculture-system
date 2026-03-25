@@ -1,223 +1,248 @@
-# 🚀 AI农业决策系统 - 自动化部署指南
+# 🌾 AI农业决策系统 - 部署指南
 
-## 架构概览
+> **当前策略**：本地运行 + Cloudflare Tunnel 公网穿透（免费）
+> GitHub Actions 仅做 CI 验证（代码质量 + Docker 构建），不负责远程部署。
 
+---
+
+## 🚀 快速开始（3步搞定）
+
+### 第1步：确认 Docker 已安装
+
+Windows 用户：安装 [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+
+验证安装：
+```powershell
+docker --version
+docker compose version
 ```
-GitHub Push → GitHub Actions → 构建 Docker 镜像 → 推送阿里云/腾讯云镜像仓库 → SSH 部署到 ECS
+
+### 第2步：一键启动（Windows）
+
+```powershell
+# 在项目根目录执行
+.\start-local.ps1
+```
+
+服务启动后访问：
+- 🌐 **前端界面**：http://localhost:3000
+- 🔧 **后端 API**：http://localhost:8000
+- 📖 **API 文档**：http://localhost:8000/docs
+
+### 第3步：开启公网访问（Cloudflare Tunnel）
+
+```powershell
+# 启动服务 + 自动开启 Cloudflare Tunnel
+.\start-local.ps1 -Tunnel
+```
+
+运行后会输出类似这样的临时公网 URL：
+```
+Your quick Tunnel has been created! Visit it at:
+https://abc123.trycloudflare.com  ← 这就是你的公网地址
+```
+
+将这个 URL 分享给任何人，他们就能访问你的系统。
+
+---
+
+## 📋 常用命令
+
+```powershell
+# 启动服务
+.\start-local.ps1
+
+# 启动 + 开公网穿透
+.\start-local.ps1 -Tunnel
+
+# 停止所有服务
+.\start-local.ps1 -Stop
+
+# 查看实时日志
+.\start-local.ps1 -Logs
+
+# 代码更新后重新构建
+.\start-local.ps1 -Rebuild
 ```
 
 ---
 
-## 📋 前置条件
+## 🌐 Cloudflare Tunnel 详细说明
 
-| 要求 | 说明 |
-|------|------|
-| 云服务器 | 阿里云/腾讯云 ECS，建议 2核4G 以上 |
-| 操作系统 | Ubuntu 20.04/22.04（推荐）|
-| 开放端口 | 80（前端）、8000（后端 API）|
-| 镜像仓库 | 阿里云容器镜像服务（ACR）或腾讯云 TCR |
-| GitHub Secrets | 见下方配置清单 |
+### 临时 URL（免注册）
+
+每次运行都会生成新的 URL，重启后失效。适合演示、临时分享。
+
+```powershell
+# 手动启动前端穿透
+cloudflared tunnel --url http://localhost:3000
+
+# 手动启动后端穿透
+cloudflared tunnel --url http://localhost:8000
+```
+
+### 固定域名（需要注册 Cloudflare 账号）
+
+如果你有域名或需要固定 URL：
+
+1. 注册 [Cloudflare 账号](https://dash.cloudflare.com/sign-up)（免费）
+2. 安装 cloudflared：
+   ```powershell
+   winget install Cloudflare.cloudflared
+   ```
+3. 登录：
+   ```powershell
+   cloudflared tunnel login
+   ```
+4. 创建 Tunnel：
+   ```powershell
+   cloudflared tunnel create ai-agriculture
+   ```
+5. 创建配置文件 `cloudflare-tunnel.yml`：
+   ```yaml
+   tunnel: <你的-tunnel-id>
+   credentials-file: C:\Users\你的用户名\.cloudflared\<tunnel-id>.json
+   
+   ingress:
+     - hostname: agri.yourdomain.com    # 你的域名
+       service: http://localhost:3000
+     - hostname: api.agri.yourdomain.com
+       service: http://localhost:8000
+     - service: http_status:404
+   ```
+6. 启动：
+   ```powershell
+   cloudflared tunnel run ai-agriculture
+   ```
 
 ---
 
-## 🔑 第一步：配置 GitHub Secrets
+## 🐳 Docker 服务说明
 
-进入 GitHub 仓库 → **Settings → Secrets and variables → Actions → New repository secret**
+### 服务组成
 
-### 必须配置
+| 服务 | 端口 | 说明 |
+|------|------|------|
+| `backend` | 8000 | FastAPI 后端，含 AI 模型 |
+| `frontend` | 3000 | React + Vite 前端（Nginx）|
+| `redis` | 6379 | 缓存和会话存储 |
 
-| Secret 名称 | 说明 | 示例 |
-|------------|------|------|
-| `DEPLOY_SERVER_HOST` | 云服务器公网 IP | `47.100.xxx.xxx` |
-| `DEPLOY_SERVER_USER` | SSH 登录用户名 | `root` 或 `ubuntu` |
-| `DEPLOY_SERVER_SSH_KEY` | SSH 私钥（完整内容）| `-----BEGIN RSA...` |
-| `ALIYUN_REGISTRY_USERNAME` | 阿里云镜像仓库账号 | 你的阿里云账号 |
-| `ALIYUN_REGISTRY_PASSWORD` | 阿里云镜像仓库密码 | 访问凭证密码 |
+### 首次启动时间
 
-### 可选配置
+- 首次构建：**5-15 分钟**（需要下载基础镜像 + 安装 Python 依赖）
+- 后续启动：**30-60 秒**（镜像已缓存）
+- 后端 AI 模型加载：额外 **1-3 分钟**
 
-| Secret 名称 | 说明 |
-|------------|------|
-| `DEPLOY_SERVER_PORT` | SSH 端口（默认 22）|
-| `DINGTALK_WEBHOOK` | 钉钉机器人通知 |
+### 查看服务状态
 
-### 如何生成 SSH 密钥对
-
-```bash
-# 在本地生成密钥对
-ssh-keygen -t ed25519 -C "github-deploy" -f ~/.ssh/deploy_key
-
-# 将公钥添加到服务器
-ssh-copy-id -i ~/.ssh/deploy_key.pub root@YOUR_SERVER_IP
-# 或手动追加：cat deploy_key.pub >> ~/.ssh/authorized_keys
-
-# 将私钥内容复制到 GitHub Secret（DEPLOY_SERVER_SSH_KEY）
-cat ~/.ssh/deploy_key
-```
-
----
-
-## 🏗️ 第二步：修改 CI/CD 配置文件
-
-编辑 `.github/workflows/deploy.yml`，修改以下两处：
-
-```yaml
-env:
-  REGISTRY: registry.cn-hangzhou.aliyuncs.com   # ← 改为你的区域
-  IMAGE_NAMESPACE: your-namespace               # ← 改为你的命名空间
-```
-
-**阿里云镜像仓库地址格式：**
-- 华东1（杭州）：`registry.cn-hangzhou.aliyuncs.com`
-- 华北2（北京）：`registry.cn-beijing.aliyuncs.com`
-- 华南1（深圳）：`registry.cn-shenzhen.aliyuncs.com`
-
-**腾讯云改为：**
-```yaml
-REGISTRY: ccr.ccs.tencentyun.com
-```
-
----
-
-## 🛠️ 第三步：服务器首次配置
-
-```bash
-# 1. 连接到服务器
-ssh root@YOUR_SERVER_IP
-
-# 2. 创建部署目录
-mkdir -p /opt/ai-agriculture
-cd /opt/ai-agriculture
-
-# 3. 复制环境变量文件
-cp .env.example .env
-nano .env   # 填入真实值
-
-# 4. 首次手动部署（之后 push 到 main 自动触发）
-bash deploy.sh
-```
-
----
-
-## ⚙️ 第四步：配置 .env 文件
-
-关键变量说明：
-
-```bash
-# 数据库（如用云数据库 RDS，填入连接串）
-DATABASE_URL=postgresql://user:password@rds-host:5432/ai_agriculture
-
-# JWT 密钥（必须是随机强密码）
-JWT_SECRET=$(python3 -c "import secrets; print(secrets.token_hex(32))")
-
-# 跨域（改为你的真实域名）
-ALLOWED_ORIGINS=https://your-domain.com
-```
-
----
-
-## 🔄 日常操作
-
-### 自动部署（推荐）
-```bash
-# 在本地修改代码后：
-git add .
-git commit -m "feat: 你的功能描述"
-git push origin main   # ← 推送后自动触发 CI/CD
-```
-
-### 手动部署（服务器上）
-```bash
-cd /opt/ai-agriculture
-docker compose pull
-docker compose up -d
-```
-
-### 查看部署状态
-```bash
-# 查看所有容器状态
+```powershell
 docker compose ps
-
-# 查看后端日志（实时）
-docker compose logs -f backend
-
-# 查看前端日志
-docker compose logs -f frontend
-
-# 查看最近50行错误
-docker compose logs --tail=50 backend | grep -i error
-```
-
-### 回滚到上一版本
-```bash
-cd /opt/ai-agriculture
-# 查看历史镜像
-docker images | grep ai-agri-backend
-
-# 指定版本标签启动（替换 abc1234 为对应的 git sha）
-docker run -d --name ai-agri-backend-old \
-  registry.cn-hangzhou.aliyuncs.com/your-namespace/ai-agri-backend:abc1234
+docker compose logs backend -f    # 实时查看后端日志
+docker compose logs frontend -f   # 实时查看前端日志
 ```
 
 ---
 
-## 🐛 常见问题排查
+## ⚙️ 环境变量配置
 
-### 问题1：服务起不来（端口问题）
-```bash
-# 检查端口占用
-netstat -tlnp | grep -E "80|8000"
+复制 `.env.example` 为 `.env`，按需修改：
 
-# 检查容器内端口
-docker inspect ai-agri-backend | grep -A 10 "Ports"
+```powershell
+Copy-Item .env.example .env
+notepad .env    # 编辑
 ```
 
-### 问题2：Flax/JAX 兼容性报错
-已通过 `backend/main.py` 的猴子补丁修复，如仍报错：
-```bash
-# 检查 Python 版本（必须是 3.11）
-docker exec ai-agri-backend python --version
-```
+主要配置项：
 
-### 问题3：数据库连接失败
-```bash
-# 测试数据库连接
-docker exec ai-agri-backend python -c "
-import os
-from sqlalchemy import create_engine
-engine = create_engine(os.environ['DATABASE_URL'])
-engine.connect()
-print('数据库连接成功')
-"
-```
+```env
+# 后端配置
+SECRET_KEY=your-secret-key-here        # 必改：JWT 密钥
+DEBUG=false
 
-### 问题4：前端无法访问 API
-检查 `frontend/nginx.conf` 中 `proxy_pass` 地址是否为 `http://backend:8000`（容器网络内服务名）
+# 数据库（可选，默认用文件存储）
+DATABASE_URL=sqlite:///./data/app.db
+
+# Redis
+REDIS_URL=redis://redis:6379/0
+
+# AI 模型配置（可选）
+AI_MODEL_PATH=./models
+```
 
 ---
 
-## 📊 监控
+## 🔧 GitHub Actions CI 说明
 
-访问以下端点检查系统状态：
+每次 push 到 `main` 分支，自动触发：
 
-| 端点 | 说明 |
-|------|------|
-| `GET /health` | 后端健康检查 |
-| `GET /docs` | FastAPI 交互文档 |
-| `GET /redoc` | FastAPI ReDoc 文档 |
-| `GET /nginx-health` | 前端 Nginx 健康检查 |
+```
+push to main
+    ↓
+质量检查（Python 语法 + 单元测试）
+    ↓
+前端构建验证（npm build）
+    ↓
+Docker 镜像构建验证（不推送）
+    ↓
+CI 报告汇总（在 Actions 页面查看）
+```
+
+查看 CI 状态：
+```
+https://github.com/maco1979/ai-agriculture-system/actions
+```
 
 ---
 
-## 🔒 安全清单
+## 🛠️ 故障排查
 
-- [ ] `.env` 已加入 `.gitignore`
-- [ ] GitHub Secrets 已正确配置（不要在代码里硬编码密钥）
-- [ ] 服务器 SSH 密码登录已禁用（仅密钥登录）
-- [ ] 微信小程序 AppID 已替换为占位符（见 `project.config.json.example`）
-- [ ] 生产环境 `DEBUG=false`
-- [ ] `ALLOWED_ORIGINS` 已限制为真实域名
+### Docker 启动失败
+```powershell
+# 查看详细错误
+docker compose logs backend
+
+# 重置并重新构建
+.\start-local.ps1 -Stop
+.\start-local.ps1 -Rebuild
+```
+
+### 端口冲突
+```powershell
+# 查看哪个程序占用了端口
+netstat -aon | findstr ":8000"
+netstat -aon | findstr ":3000"
+
+# 修改端口：编辑 docker-compose.yml 中的 ports 配置
+```
+
+### 前端无法连接后端
+检查 `.env` 中的 `VITE_API_URL` 是否为 `http://localhost:8000`
+
+### 内存不足
+关闭其他程序，或在 Docker Desktop → Settings → Resources → Memory 增加内存限制（建议 4GB+）
 
 ---
 
-**⚙️ 部署有问题？** 查看 GitHub Actions 的 run 日志，或执行 `docker compose logs -f` 在服务器上查看实时日志。
+## 📁 文件结构
+
+```
+./
+├── .github/workflows/deploy.yml    # CI 验证流水线
+├── backend/
+│   ├── Dockerfile                  # 后端镜像
+│   └── ...
+├── frontend/
+│   ├── Dockerfile                  # 前端镜像（多阶段构建）
+│   ├── nginx.conf                  # Nginx 配置（SPA + API 代理）
+│   └── ...
+├── docker-compose.yml              # 服务编排
+├── start-local.ps1                 # Windows 一键启动
+├── start-local.sh                  # Linux/Mac 一键启动
+├── .env.example                    # 环境变量模板
+└── DEPLOY.md                       # 本文件
+```
+
+---
+
+*部署方式：本地 Docker + Cloudflare Tunnel 免费公网穿透*  
+*最后更新：2026-03-25*
