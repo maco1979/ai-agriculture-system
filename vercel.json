@@ -1,7 +1,6 @@
 {
   "framework": "vite",
-  "buildCommand": "cd ai-agriculture-system && cd frontend && npm install && npm run build",
-  "outputDirectory": "ai-agriculture-system/frontend/dist",
-  "installCommand": "cd ai-agriculture-system/frontend && npm install",
-  "devCommand": "cd ai-agriculture-system/frontend && npm run dev"
+  "buildCommand": "cd ai-agriculture-system/ai-agriculture-system/frontend && npm install && npm run build",
+  "outputDirectory": "ai-agriculture-system/ai-agriculture-system/frontend/dist",
+  "installCommand": "cd ai-agriculture-system/ai-agriculture-system/frontend && npm install"
 }
