@@ -3,6 +3,7 @@
 - SQLite 持久化存储
 - AI 智能体角色 @ 触发自动回复
 - AI 自主发帖（定时 + 事件触发 + 手动触发）
+- AI 多角色自主对话（发帖后自动触发 + 手动触发）
 - 帖子/回复 CRUD
 """
 
@@ -223,21 +224,30 @@ async def api_trigger_ai_post(body: TriggerPostRequest):
         raise HTTPException(status_code=503, detail="AI 内容生成失败，请检查 API Key 配置")
 
     agent = AI_AGENTS[agent_id]
-    success = await _post_as_agent(
+    post_obj = await _post_as_agent(
         agent_id=agent_id,
         title=topic,
         content=content,
         category="AI分享",
         tags=agent.get("tags", []),
     )
-    if not success:
+    if not post_obj:
         raise HTTPException(status_code=500, detail="帖子写入数据库失败")
+
+    # 发帖成功后，异步触发其他 AI 角色参与讨论
+    import asyncio as _asyncio
+    from src.services.community_scheduler import _trigger_dialogue_after_delay
+    if post_obj.get("id"):
+        _asyncio.create_task(
+            _trigger_dialogue_after_delay(post_obj["id"], initiator_id=agent_id, delay=15.0)
+        )
 
     return {
         "status": "ok",
         "type": "daily",
         "agent": agent_id,
         "title": topic,
+        "post_id": post_obj.get("id"),
     }
 
 
@@ -245,14 +255,58 @@ async def api_trigger_ai_post(body: TriggerPostRequest):
 def api_scheduler_status():
     """获取 AI 发帖调度器状态"""
     try:
-        from src.services.community_scheduler import _running, _scheduler_task, _event_monitor_task
+        from src.services.community_scheduler import _running, _scheduler_task, _event_monitor_task, _dialogue_task
         return {
             "running": _running,
             "scheduled_post_active": _scheduler_task is not None and not _scheduler_task.done(),
             "event_monitor_active": _event_monitor_task is not None and not _event_monitor_task.done(),
+            "dialogue_push_active": _dialogue_task is not None and not _dialogue_task.done(),
         }
     except Exception as e:
         return {"running": False, "error": str(e)}
+
+
+# ────────────────────── AI 自主对话（手动触发）──────────────────────
+
+class TriggerDialogueRequest(BaseModel):
+    post_id: int
+    mode: str = "start"   # "start"=从头开始 / "continue"=继续推进一轮
+
+
+@router.post("/ai/trigger-dialogue", status_code=201)
+async def api_trigger_ai_dialogue(body: TriggerDialogueRequest):
+    """
+    手动触发指定帖子的 AI 多角色对话
+    - mode=start：让所有感兴趣的 AI 角色阅读并参与讨论
+    - mode=continue：继续推进已有讨论（推进 1-2 个角色继续发言）
+    """
+    from src.services.community_dialogue import start_ai_dialogue, continue_ai_dialogue
+
+    post = get_post(body.post_id)
+    if not post:
+        raise HTTPException(status_code=404, detail=f"帖子#{body.post_id}不存在")
+
+    if body.mode == "continue":
+        count = await continue_ai_dialogue(body.post_id)
+    else:
+        count = await start_ai_dialogue(body.post_id)
+
+    return {
+        "status": "ok",
+        "post_id": body.post_id,
+        "mode": body.mode,
+        "ai_replies_generated": count,
+    }
+
+
+@router.get("/ai/dialogue-stats/{post_id}")
+def api_dialogue_stats(post_id: int):
+    """获取某帖子的 AI 对话统计信息"""
+    from src.services.community_dialogue import get_dialogue_stats
+    stats = get_dialogue_stats(post_id)
+    if not stats:
+        raise HTTPException(status_code=404, detail=f"帖子#{post_id}不存在")
+    return stats
 
 
 # ────────────────────── 分类 ──────────────────────

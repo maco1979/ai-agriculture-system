@@ -162,6 +162,8 @@ export function Community() {
   const [aiPosting, setAiPosting]   = useState(false)
   const [selectedAgent, setSelectedAgent] = useState('')
   const [selectedEvent, setSelectedEvent] = useState('')
+  // 对话触发中的帖子 ID 集合
+  const [pendingDialogue, setPendingDialogue] = useState<Set<number>>(new Set())
   // 轮询刷新（AI 定时发帖后自动显示新帖）
   const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -291,6 +293,23 @@ export function Community() {
       alert(e?.response?.data?.detail || 'AI 发帖失败，请检查 API Key 配置')
     } finally {
       setAiPosting(false)
+    }
+  }
+
+  // ── AI 自主对话触发 ──
+  const handleTriggerDialogue = async (postId: number, mode: 'start' | 'continue' = 'start') => {
+    setPendingDialogue(prev => new Set(prev).add(postId))
+    try {
+      await API.post('/community/ai/trigger-dialogue', { post_id: postId, mode })
+      // 稍等片刻再刷新（AI 需要时间生成回复）
+      setTimeout(() => refreshReplies(postId), 2000)
+      setTimeout(() => {
+        refreshReplies(postId)
+        setPendingDialogue(prev => { const s = new Set(prev); s.delete(postId); return s })
+      }, 12000)
+    } catch (e: any) {
+      alert(e?.response?.data?.detail || 'AI 对话触发失败，请检查 API Key 配置')
+      setPendingDialogue(prev => { const s = new Set(prev); s.delete(postId); return s })
     }
   }
 
@@ -657,7 +676,11 @@ export function Community() {
                 </div>
 
                 {/* 展开区 */}
-                {isExpanded && (
+                {isExpanded && (() => {
+                  const isDialoguing = pendingDialogue.has(post.id)
+                  const aiReplies = post.replies.filter(r => r.is_ai)
+                  const hasAIConvo = aiReplies.length >= 2
+                  return (
                   <div className="border-t border-tech-primary/10 pt-4 space-y-4">
                     {/* AI 角色快捷咨询 */}
                     <div className="flex flex-wrap gap-2 items-center">
@@ -674,19 +697,65 @@ export function Community() {
                       ))}
                     </div>
 
+                    {/* AI 自主对话触发栏 */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs text-gray-400 flex items-center gap-1">
+                        <MessageSquare className="w-3 h-3" /> AI 自主讨论：
+                      </span>
+                      <button
+                        onClick={() => handleTriggerDialogue(post.id, 'start')}
+                        disabled={isDialoguing || isWaitingAI}
+                        className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-all
+                                   bg-gradient-to-r from-tech-primary/10 to-tech-secondary/10
+                                   border-tech-primary/30 text-tech-primary
+                                   hover:from-tech-primary/20 hover:to-tech-secondary/20
+                                   disabled:opacity-40 disabled:cursor-not-allowed">
+                        {isDialoguing
+                          ? <><RefreshCw className="w-3 h-3 animate-spin" /> AI 正在讨论...</>
+                          : <><Sparkles className="w-3 h-3" /> 触发 AI 多角色讨论</>}
+                      </button>
+                      {hasAIConvo && (
+                        <button
+                          onClick={() => handleTriggerDialogue(post.id, 'continue')}
+                          disabled={isDialoguing || isWaitingAI}
+                          className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-all
+                                     bg-white/5 border-white/15 text-gray-400
+                                     hover:border-tech-primary/30 hover:text-tech-primary
+                                     disabled:opacity-40 disabled:cursor-not-allowed">
+                          <Zap className="w-3 h-3" /> 继续讨论
+                        </button>
+                      )}
+                      {aiReplies.length > 0 && (
+                        <span className="text-[10px] text-gray-500 ml-1">
+                          已有 {aiReplies.length} 条 AI 讨论
+                        </span>
+                      )}
+                    </div>
+
                     {/* 回复列表 */}
                     {post.replies.length > 0 ? (
                       <div className="space-y-3">
-                        {post.replies.map(r => <ReplyBubble key={r.id} reply={r} />)}
+                        {post.replies.map((r, idx) => (
+                          <div key={r.id}>
+                            {/* AI 对AI讨论时，连续的AI回复加连接线提示 */}
+                            {idx > 0 && r.is_ai && post.replies[idx - 1]?.is_ai && (
+                              <div className="flex items-center gap-2 ml-10 my-1">
+                                <div className="w-0.5 h-4 bg-tech-primary/20 ml-3.5" />
+                                <span className="text-[9px] text-tech-primary/40">AI 接力讨论</span>
+                              </div>
+                            )}
+                            <ReplyBubble reply={r} />
+                          </div>
+                        ))}
                       </div>
                     ) : (
                       <p className="text-sm text-gray-500 text-center py-2">暂无回复，来说说你的想法</p>
                     )}
 
-                    {isWaitingAI && (
+                    {(isWaitingAI || isDialoguing) && (
                       <div className="flex items-center gap-2 text-xs text-tech-primary animate-pulse pl-11">
                         <Bot className="w-4 h-4" />
-                        <span>AI 智能体正在思考回复...</span>
+                        <span>{isDialoguing ? 'AI 智能体正在讨论中，稍后刷新...' : 'AI 智能体正在思考回复...'}</span>
                         <span className="flex gap-1">
                           <span className="w-1.5 h-1.5 bg-tech-primary rounded-full animate-bounce" style={{animationDelay:'0ms'}} />
                           <span className="w-1.5 h-1.5 bg-tech-primary rounded-full animate-bounce" style={{animationDelay:'150ms'}} />
@@ -728,7 +797,8 @@ export function Community() {
                       </div>
                     </div>
                   </div>
-                )}
+                  )
+                })()}
               </CardContent>
             </Card>
           )

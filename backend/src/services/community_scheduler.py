@@ -1,10 +1,11 @@
 """
-社区 AI 自主发帖调度器
+社区 AI 自主发帖 + 对话调度器
 ─────────────────────────────────────────────────────────
 功能：
   1. 定时发帖：每小时 AI 角色轮流发一篇日常农业知识帖
   2. 事件触发发帖：检测到传感器/系统异常时自动发预警帖
-  3. 开机发帖：首次启动时每个角色发一篇介绍帖（可选）
+  3. AI 自主对话：AI 发帖后自动触发其他角色阅读并参与讨论
+  4. 定时对话推进：每隔一段时间对热门帖子继续推进 AI 讨论
 
 使用方式：
   在 FastAPI lifespan 里调用 start_scheduler() / stop_scheduler()
@@ -25,12 +26,15 @@ logger = logging.getLogger(__name__)
 # ── 调度器状态 ─────────────────────────────────────────────
 _scheduler_task: Optional[asyncio.Task] = None
 _event_monitor_task: Optional[asyncio.Task] = None
+_dialogue_task: Optional[asyncio.Task] = None
 _running = False
 
 # 每小时定时发帖间隔（秒）
 DAILY_POST_INTERVAL = 3600        # 1小时
 # 事件监控检查间隔（秒）
 EVENT_CHECK_INTERVAL = 300        # 5分钟
+# AI 对话推进间隔（秒）
+DIALOGUE_PUSH_INTERVAL = 1800     # 30分钟
 # 每天每个角色最多主动发帖数（防刷屏）
 MAX_POSTS_PER_AGENT_PER_DAY = 3
 
@@ -169,11 +173,11 @@ async def _generate_ai_post(agent_id: str, prompt: str) -> Optional[str]:
 
 async def _post_as_agent(agent_id: str, title: str, content: str,
                           category: str = "AI分享", tags: list = None,
-                          is_event: bool = False) -> bool:
-    """以 AI 角色身份发帖到 SQLite"""
+                          is_event: bool = False) -> Optional[dict]:
+    """以 AI 角色身份发帖到 SQLite，返回帖子 dict（含 id）或 None"""
     agent = AI_AGENTS.get(agent_id)
     if not agent:
-        return False
+        return None
 
     if tags is None:
         tags = agent.get("tags", [])
@@ -188,7 +192,7 @@ async def _post_as_agent(agent_id: str, title: str, content: str,
     )
 
     try:
-        create_post(
+        post = create_post(
             user=f"{agent['emoji']} {agent['name']}",
             avatar=avatar,
             title=title,
@@ -196,11 +200,26 @@ async def _post_as_agent(agent_id: str, title: str, content: str,
             category=category,
             tags=tags,
         )
-        logger.info(f"[AI自主发帖] {agent['name']} 发布: 《{title}》")
-        return True
+        logger.info(f"[AI自主发帖] {agent['name']} 发布: 《{title}》(id={post.get('id')})")
+        return post
     except Exception as e:
         logger.error(f"[AI自主发帖] 写库失败: {e}")
-        return False
+        return None
+
+
+async def _trigger_dialogue_after_delay(post_id: int, initiator_id: str,
+                                         delay: float = 20.0):
+    """
+    发帖 delay 秒后触发其他 AI 角色参与讨论（模拟"有人看到帖子了"）
+    """
+    await asyncio.sleep(delay)
+    try:
+        from src.services.community_dialogue import start_ai_dialogue
+        count = await start_ai_dialogue(post_id, initiator_id=initiator_id)
+        if count:
+            logger.info(f"[AI对话] 帖子#{post_id} 触发了{count}个AI角色参与讨论")
+    except Exception as e:
+        logger.warning(f"[AI对话] 触发失败: {e}")
 
 
 def _count_today_posts(agent_id: str) -> int:
@@ -256,13 +275,18 @@ async def _scheduled_post_loop():
             content = await _generate_ai_post(agent_id, prompt)
             if content:
                 agent = AI_AGENTS[agent_id]
-                await _post_as_agent(
+                post = await _post_as_agent(
                     agent_id=agent_id,
                     title=topic,
                     content=content,
                     category="AI分享",
                     tags=agent.get("tags", []),
                 )
+                # AI 发帖后，延迟一段时间触发其他 AI 角色参与讨论
+                if post and isinstance(post, dict) and post.get("id"):
+                    asyncio.create_task(
+                        _trigger_dialogue_after_delay(post["id"], initiator_id=agent_id)
+                    )
 
         except asyncio.CancelledError:
             break
@@ -396,7 +420,7 @@ async def trigger_event_post(event_type: str, context: dict = None) -> bool:
     if not content:
         return False
 
-    return await _post_as_agent(
+    post = await _post_as_agent(
         agent_id=agent_id,
         title=title,
         content=content,
@@ -405,6 +429,44 @@ async def trigger_event_post(event_type: str, context: dict = None) -> bool:
         is_event=event_type not in ("system_startup",),
     )
 
+    if post and isinstance(post, dict) and post.get("id"):
+        # 事件帖发布后，触发其他 AI 角色讨论（稍晚一些，给用户看到的时间）
+        asyncio.create_task(
+            _trigger_dialogue_after_delay(post["id"], initiator_id=agent_id, delay=30.0)
+        )
+        return True
+    return False
+
+
+# ─────────────────────────────────────────────────────────────
+# AI 对话推进定时循环
+# ─────────────────────────────────────────────────────────────
+
+async def _dialogue_push_loop():
+    """
+    定时扫描近期帖子，推进 AI 多角色讨论
+    不是每次都触发，有概率（70%）跳过，保持自然感
+    """
+    logger.info("[社区调度器] AI对话推进循环已启动，间隔 %ds", DIALOGUE_PUSH_INTERVAL)
+
+    # 首次执行延迟（等发帖模块先跑起来）
+    await asyncio.sleep(60)
+
+    while _running:
+        try:
+            from src.services.community_dialogue import trigger_dialogue_for_recent_posts
+            total = await trigger_dialogue_for_recent_posts(limit=2)
+            if total:
+                logger.info(f"[AI对话推进] 本轮共触发 {total} 条 AI 讨论回复")
+        except asyncio.CancelledError:
+            break
+        except Exception as e:
+            logger.error(f"[AI对话推进] 异常: {e}")
+
+        await asyncio.sleep(DIALOGUE_PUSH_INTERVAL)
+
+    logger.info("[社区调度器] AI对话推进循环已停止")
+
 
 # ─────────────────────────────────────────────────────────────
 # 公共 API：start / stop
@@ -412,7 +474,7 @@ async def trigger_event_post(event_type: str, context: dict = None) -> bool:
 
 def start_scheduler():
     """在 FastAPI startup 事件中调用，启动所有后台任务"""
-    global _running, _scheduler_task, _event_monitor_task
+    global _running, _scheduler_task, _event_monitor_task, _dialogue_task
     if _running:
         logger.warning("[社区调度器] 已在运行，跳过重复启动")
         return
@@ -420,15 +482,15 @@ def start_scheduler():
     _running = True
     _scheduler_task = asyncio.create_task(_scheduled_post_loop())
     _event_monitor_task = asyncio.create_task(_event_monitor_loop())
-    logger.info("[社区调度器] 已启动（定时发帖 + 事件监控）")
+    _dialogue_task = asyncio.create_task(_dialogue_push_loop())
+    logger.info("[社区调度器] 已启动（定时发帖 + 事件监控 + AI对话推进）")
 
 
 def stop_scheduler():
     """在 FastAPI shutdown 事件中调用，优雅停止"""
     global _running
     _running = False
-    if _scheduler_task and not _scheduler_task.done():
-        _scheduler_task.cancel()
-    if _event_monitor_task and not _event_monitor_task.done():
-        _event_monitor_task.cancel()
+    for task in (_scheduler_task, _event_monitor_task, _dialogue_task):
+        if task and not task.done():
+            task.cancel()
     logger.info("[社区调度器] 已停止")
