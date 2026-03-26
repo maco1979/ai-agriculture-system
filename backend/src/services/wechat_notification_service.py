@@ -2,14 +2,21 @@
 微信通知服务
 ─────────────────────────────────────────────────────────
 功能：
-  1. 推送任务提案到微信小程序
+  1. 推送任务提案到微信（支持小程序和ClawBot）
   2. 发送执行结果通知
   3. 支持模板消息和订阅消息
   4. 管理用户订阅关系
 
-配置：
-  - 需要配置微信小程序的 AppID 和 AppSecret
-  - 需要在微信公众平台申请模板消息
+配置方式（二选一）：
+  1. 微信小程序模式（传统方式）：
+     - 需要配置 AppID、AppSecret
+     - 需要在微信公众平台申请模板消息
+
+  2. ClawBot 集成模式（推荐）：
+     - 无需申请凭证
+     - 扫码即可绑定
+     - 通过 Webhook 发送消息
+     - 支持双向交互
 """
 
 import logging
@@ -20,6 +27,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 import asyncio
+import os
 
 from src.services.community_db import get_conn, _validate_input
 
@@ -27,18 +35,28 @@ logger = logging.getLogger(__name__)
 
 # ── 配置 ────────────────────────────────────────────────────
 
-# 微信小程序配置（从环境变量或配置文件读取）
+# 使用模式选择
+# True = 使用 ClawBot 集成（推荐）
+# False = 使用传统微信小程序
+USE_CLAW_BOT = os.getenv("USE_CLAW_BOT", "true").lower() == "true"
+
+# ClawBot Webhook 配置（WorkBuddy自动生成）
+CLAW_BOT_CONFIG = {
+    "webhook_url": os.getenv("CLAW_BOT_WEBHOOK", "http://localhost:5678/webhook/wechat"),
+    "timeout": 10.0,
+}
+
+# 微信小程序配置（传统方式，备用）
 WECHAT_CONFIG = {
-    "appid": "YOUR_WECHAT_APPID_HERE",  # 替换为真实的小程序 AppID
-    "appsecret": "YOUR_WECHAT_APPSECRET",  # 替换为真实的小程序 AppSecret
-    "template_id": "YOUR_TEMPLATE_ID",  # 模板消息ID
+    "appid": os.getenv("WECHAT_APPID", "YOUR_WECHAT_APPID_HERE"),
+    "appsecret": os.getenv("WECHAT_APPSECRET", "YOUR_WECHAT_APPSECRET"),
+    "template_id": os.getenv("WECHAT_TEMPLATE_ID", "YOUR_TEMPLATE_ID"),
 }
 
 # 微信 API 接口
 WECHAT_API = {
     "get_access_token": "https://api.weixin.qq.com/cgi-bin/token",
     "send_template_msg": "https://api.weixin.qq.com/cgi-bin/message/subscribe/send",
-    "send_subscribe_msg": "https://api.weixin.qq.com/cgi-bin/message/subscribe/send",
 }
 
 
@@ -151,44 +169,62 @@ async def send_task_proposal_notification(
     proposal_desc: str,
     task_type: str,
     risk_level: str,
-    page_path: str = "pages/proposals/proposal-detail",
+    proposal_id: Optional[str] = None,
 ) -> bool:
     """
-    发送任务提案通知到微信小程序
+    发送任务提案通知到微信
+    
+    支持两种模式：
+    1. ClawBot模式：通过Webhook发送富文本消息
+    2. 小程序模式：发送模板消息（备用）
     
     Args:
-        openid: 用户 openid
+        openid: 用户 openid/微信昵称
         proposal_title: 提案标题
         proposal_desc: 提案描述
         task_type: 任务类型
         risk_level: 风险等级
-        page_path: 小程序页面路径
+        proposal_id: 提案ID（用于详情查看）
         
     Returns:
         是否发送成功
     """
     
-    # 检查用户是否订阅
-    if not await check_user_subscribed(openid):
-        logger.warning(f"用户 {openid} 未订阅消息，跳过发送")
-        return False
+    # ClawBot 模式（推荐）
+    if USE_CLAW_BOT:
+        return await _send_clawbot_message(
+            recipient=openid,
+            message_type="task_proposal",
+            title=proposal_title,
+            description=proposal_desc,
+            task_type=task_type,
+            risk_level=risk_level,
+            proposal_id=proposal_id,
+        )
     
-    # 准备模板消息数据
-    template_data = {
-        "thing1": {"value": proposal_title[:20]},  # 提案名称，最多20字符
-        "thing2": {"value": proposal_desc[:20]},   # 提案描述，最多20字符
-        "thing3": {"value": task_type[:20]},       # 任务类型
-        "thing4": {"value": risk_level[:20]},      # 风险等级
-        "thing5": {"value": datetime.now().strftime("%Y-%m-%d %H:%M")},  # 生成时间
-    }
-    
-    # 发送消息
-    return await _send_template_message(
-        openid=openid,
-        template_id=WECHAT_CONFIG["template_id"],
-        data=template_data,
-        page_path=f"{page_path}?openid={openid}",
-    )
+    # 传统小程序模式（备用）
+    else:
+        # 检查用户是否订阅
+        if not await check_user_subscribed(openid):
+            logger.warning(f"用户 {openid} 未订阅消息，跳过发送")
+            return False
+        
+        # 准备模板消息数据
+        template_data = {
+            "thing1": {"value": proposal_title[:20]},  # 提案名称，最多20字符
+            "thing2": {"value": proposal_desc[:20]},   # 提案描述，最多20字符
+            "thing3": {"value": task_type[:20]},       # 任务类型
+            "thing4": {"value": risk_level[:20]},      # 风险等级
+            "thing5": {"value": datetime.now().strftime("%Y-%m-%d %H:%M")},  # 生成时间
+        }
+        
+        # 发送消息
+        return await _send_template_message(
+            openid=openid,
+            template_id=WECHAT_CONFIG["template_id"],
+            data=template_data,
+            page_path=f"pages/proposals/proposal-detail?openid={openid}",
+        )
 
 
 async def send_task_result_notification(
@@ -196,40 +232,195 @@ async def send_task_result_notification(
     task_title: str,
     result: str,
     status: str,
-    page_path: str = "pages/tasks/task-history",
 ) -> bool:
     """
     发送任务执行结果通知
     
     Args:
-        openid: 用户 openid
+        openid: 用户 openid/微信昵称
         task_title: 任务标题
         result: 执行结果
         status: 执行状态
-        page_path: 小程序页面路径
         
     Returns:
         是否发送成功
     """
     
-    if not await check_user_subscribed(openid):
-        return False
+    # ClawBot 模式（推荐）
+    if USE_CLAW_BOT:
+        return await _send_clawbot_message(
+            recipient=openid,
+            message_type="task_result",
+            title=task_title,
+            result=result,
+            status=status,
+        )
     
-    # 准备模板消息数据
-    template_data = {
-        "thing1": {"value": task_title[:20]},      # 任务名称
-        "thing2": {"value": status[:20]},          # 执行状态
-        "thing3": {"value": result[:20]},          # 执行结果
-        "thing4": {"value": datetime.now().strftime("%Y-%m-%d %H:%M")},  # 完成时间
-        "thing5": {"value": "点击查看详情"},        # 备注
+    # 传统小程序模式（备用）
+    else:
+        if not await check_user_subscribed(openid):
+            return False
+        
+        # 准备模板消息数据
+        template_data = {
+            "thing1": {"value": task_title[:20]},      # 任务名称
+            "thing2": {"value": status[:20]},          # 执行状态
+            "thing3": {"value": result[:20]},          # 执行结果
+            "thing4": {"value": datetime.now().strftime("%Y-%m-%d %H:%M")},  # 完成时间
+            "thing5": {"value": "点击查看详情"},        # 备注
+        }
+        
+        return await _send_template_message(
+            openid=openid,
+            template_id=WECHAT_CONFIG["template_id"],
+            data=template_data,
+            page_path="pages/tasks/task-history",
+        )
+
+
+async def _send_clawbot_message(
+    recipient: str,
+    message_type: str,
+    **kwargs
+) -> bool:
+    """
+    通过 ClawBot Webhook 发送消息
+    
+    Args:
+        recipient: 接收人（微信昵称或openid）
+        message_type: 消息类型
+        **kwargs: 消息内容
+        
+    Returns:
+        是否发送成功
+    """
+    
+    # 构建富文本消息
+    if message_type == "task_proposal":
+        message = _build_proposal_message(
+            title=kwargs.get("title", ""),
+            description=kwargs.get("description", ""),
+            task_type=kwargs.get("task_type", ""),
+            risk_level=kwargs.get("risk_level", ""),
+            proposal_id=kwargs.get("proposal_id", ""),
+        )
+    elif message_type == "task_result":
+        message = _build_result_message(
+            title=kwargs.get("title", ""),
+            result=kwargs.get("result", ""),
+            status=kwargs.get("status", ""),
+        )
+    else:
+        message = str(kwargs)
+    
+    # 准备消息体
+    message_body = {
+        "recipient": recipient,
+        "message": message,
+        "type": message_type,
+        "timestamp": datetime.now().isoformat(),
     }
     
-    return await _send_template_message(
-        openid=openid,
-        template_id=WECHAT_CONFIG["template_id"],
-        data=template_data,
-        page_path=page_path,
-    )
+    # 添加元数据
+    if kwargs.get("proposal_id"):
+        message_body["proposal_id"] = kwargs["proposal_id"]
+    
+    try:
+        # 发送到 ClawBot Webhook
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                CLAW_BOT_CONFIG["webhook_url"],
+                json=message_body,
+                timeout=CLAW_BOT_CONFIG["timeout"],
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                if result.get("success"):
+                    logger.info(f"ClawBot消息发送成功: recipient={recipient}")
+                    return True
+                else:
+                    logger.error(f"ClawBot消息发送失败: {result.get('error', '未知错误')}")
+                    return False
+            else:
+                logger.error(f"ClawBot Webhook 响应异常: HTTP {response.status_code}")
+                return False
+    
+    except Exception as e:
+        logger.error(f"发送ClawBot消息异常: {e}")
+        return False
+
+
+def _build_proposal_message(
+    title: str,
+    description: str,
+    task_type: str,
+    risk_level: str,
+    proposal_id: Optional[str] = None,
+) -> str:
+    """构建任务提案消息"""
+    
+    risk_emoji = {
+        "low": "✅",
+        "medium": "⚠️",
+        "high": "❌",
+    }.get(risk_level, "⚪")
+    
+    message = f"""🌾 AI农业决策系统
+
+📋 新任务提案
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📄 {title}
+
+🏷️ 任务类型：{task_type}
+{risk_emoji} 风险等级：{risk_level}
+
+💡 {description}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+回复以下指令：
+👉 "批准" - 立即执行此任务
+👉 "拒绝" - 取消此任务
+👉 "详情" - 查看完整信息
+"""
+    
+    if proposal_id:
+        message += f"\n📎 提案ID：{proposal_id[:8]}"
+    
+    return message
+
+
+def _build_result_message(
+    title: str,
+    result: str,
+    status: str,
+) -> str:
+    """构建任务结果消息"""
+    
+    status_emoji = {
+        "completed": "✅",
+        "executing": "🚀",
+        "failed": "❌",
+        "pending": "⏳",
+    }.get(status, "⚪")
+    
+    return f"""🌾 AI农业决策系统
+
+📊 任务执行结果
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+{status_emoji} {title}
+
+📈 执行结果：{result}
+
+⏰ 完成时间：{datetime.now().strftime("%Y-%m-%d %H:%M")}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+回复：
+👉 "历史" - 查看任务历史
+👉 "统计" - 查看今日统计
+"""
 
 
 async def _send_template_message(
@@ -239,7 +430,7 @@ async def _send_template_message(
     page_path: str = "",
 ) -> bool:
     """
-    发送模板消息（底层实现）
+    发送模板消息（传统小程序模式，备用）
     
     Args:
         openid: 用户 openid
@@ -438,34 +629,102 @@ def get_notification_history(
 init_wechat_db()
 
 
-# 测试函数
-async def test_wechat_service():
-    """测试微信服务"""
-    logger.info("开始测试微信通知服务...")
+# ── ClawBot 快速测试 ─────────────────────────────────────
+
+async def test_clawbot_connection():
+    """测试 ClawBot 连接"""
+    logger.info("测试 ClawBot 连接...")
     
-    # 注意：以下测试需要真实的微信配置和 openid
-    if WECHAT_CONFIG["appid"] == "YOUR_WECHAT_APPID_HERE":
-        logger.warning("微信配置未设置，跳过测试")
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                CLAW_BOT_CONFIG["webhook_url"].replace("/wechat", "/health"),
+                timeout=3.0,
+            )
+            
+            if response.status_code == 200:
+                logger.info("✅ ClawBot 连接正常")
+                return True
+            else:
+                logger.warning(f"⚠️  ClawBot 响应异常: HTTP {response.status_code}")
+                return False
+    except Exception as e:
+        logger.warning(f"⚠️  ClawBot 连接失败: {e}")
+        logger.info("💡 请确保 WorkBuddy 已启动并登录")
         return False
+
+
+async def send_test_message_to_wechat(recipient: str = None):
+    """
+    发送测试消息到微信
     
-    # 获取订阅用户
-    users = get_subscribed_users()
-    if not users:
-        logger.warning("没有订阅用户，跳过测试")
-        return False
+    Args:
+        recipient: 接收人（微信昵称），如果为None则使用配置中的默认用户
+    """
+    if not recipient:
+        # 从数据库获取第一个订阅用户
+        users = get_subscribed_users(limit=1)
+        if not users:
+            logger.warning("没有订阅用户，请先绑定微信账号")
+            return False
+        recipient = users[0]
     
-    # 发送测试消息
+    logger.info(f"发送测试消息到: {recipient}")
+    
+    # 发送测试提案
     success = await send_task_proposal_notification(
-        openid=users[0],
-        proposal_title="测试任务提案",
-        proposal_desc="这是一个测试任务",
-        task_type="灌溉",
+        openid=recipient,
+        proposal_title="🧪 系统测试任务",
+        proposal_desc="这是一条测试消息，验证微信集成是否正常工作",
+        task_type="测试",
         risk_level="low",
+        proposal_id="test-001",
     )
     
     if success:
-        logger.info("微信通知服务测试成功")
+        logger.info("✅ 测试消息已发送到微信，请检查是否收到")
     else:
-        logger.error("微信通知服务测试失败")
+        logger.error("❌ 测试消息发送失败")
     
     return success
+
+
+# ── 命令行测试 ───────────────────────────────────────────
+
+if __name__ == "__main__":
+    import asyncio
+    
+    async def main():
+        print("🌾 AI农业决策系统 - 微信通知服务测试")
+        print("=" * 60)
+        
+        # 检查当前模式
+        mode = "ClawBot" if USE_CLAW_BOT else "微信小程序"
+        print(f"当前模式: {mode}")
+        print("=" * 60)
+        
+        if USE_CLAW_BOT:
+            # 测试 ClawBot 连接
+            print("\n🔌 测试 ClawBot 连接...")
+            await test_clawbot_connection()
+            
+            # 发送测试消息
+            print("\n📤 发送测试消息...")
+            await send_test_message_to_wechat()
+            
+            print("\n💡 提示:")
+            print("   - 确保 WorkBuddy 已启动")
+            print("   - 确保已绑定微信账号")
+            print("   - 检查微信是否收到测试消息")
+        else:
+            print("\n💡 当前使用传统小程序模式")
+            print("请确保已配置：")
+            print("  - WECHAT_APPID")
+            print("  - WECHAT_APPSECRET")
+            print("  - WECHAT_TEMPLATE_ID")
+            print("\n然后运行测试函数：")
+            print("  python -m src.services.wechat_notification_service")
+        
+        print("\n✅ 测试完成")
+    
+    asyncio.run(main())
