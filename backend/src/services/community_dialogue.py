@@ -254,8 +254,36 @@ async def start_ai_dialogue(post_id: int, initiator_id: Optional[str] = None) ->
 
     logger.info(f"[AI对话] 帖子#{post_id} 本轮 AI 参与了{reply_count}次讨论")
 
-    # 对话完成后的回调（任务审批功能已移除）
-    logger.info(f"[AI对话] 帖子 {post_id} 的对话已完成，共 {reply_count} 条回复")
+    # 对话完成后，自动生成任务提案
+    if reply_count > 0:
+        try:
+            from src.services.task_proposal_service import generate_task_proposal
+            proposal = await generate_task_proposal(post_id)
+            if proposal:
+                logger.info(f"[AI对话] 帖子#{post_id} 已生成任务提案: {proposal.proposal_id}")
+                
+                # 自动推送到微信（如果有订阅用户）
+                try:
+                    from src.services.wechat_notification_service import (
+                        send_task_proposal_notification,
+                        get_subscribed_users,
+                    )
+                    users = get_subscribed_users()
+                    if users:
+                        await send_task_proposal_notification(
+                            openid=users[0],
+                            proposal_title=proposal.title,
+                            proposal_desc=proposal.description,
+                            task_type=proposal.task_type.value,
+                            risk_level=proposal.risk_level,
+                        )
+                        logger.info(f"[AI对话] 任务提案 {proposal.proposal_id} 已推送到微信")
+                except Exception as e:
+                    logger.warning(f"[AI对话] 微信推送失败: {e}")
+            else:
+                logger.info(f"[AI对话] 帖子#{post_id} 未生成任务提案")
+        except Exception as e:
+            logger.warning(f"[AI对话] 生成任务提案失败: {e}")
 
     return reply_count
 

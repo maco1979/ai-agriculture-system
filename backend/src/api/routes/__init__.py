@@ -48,7 +48,7 @@ try:
 except ImportError as e:
     blockchain_router = None
 
-__all__ = ["models_router", "inference_router", "training_router", "system_router", "edge_router", "blockchain_router", "federated_router", "agriculture_router", "decision_router", "model_training_decision_router", "resource_decision_router", "decision_monitoring_router", "camera_router", "performance_router", "ai_control_router", "auth_router", "jepa_dtmpc_router", "community_router", "monitoring_router", "fine_tune_router", "cloud_ai_router", "health_router", "chat_router", "provenance_router"]
+__all__ = ["models_router", "inference_router", "training_router", "system_router", "edge_router", "blockchain_router", "federated_router", "agriculture_router", "decision_router", "model_training_decision_router", "resource_decision_router", "decision_monitoring_router", "camera_router", "performance_router", "ai_control_router", "auth_router", "jepa_dtmpc_router", "community_router", "monitoring_router", "fine_tune_router", "cloud_ai_router", "health_router", "chat_router", "provenance_router", "tasks_router"]
 
 # 动态添加user_router（如果导入成功）
 if user_router is not None:

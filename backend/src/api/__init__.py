@@ -194,6 +194,9 @@ def create_app() -> FastAPI:
     # 注册数据溯源 + PHOTON 奖励路由（/api/provenance/...）
     app.include_router(provenance_router, prefix="/api")
 
+    # 注册任务管理路由（/api/tasks/...）
+    app.include_router(tasks_router, prefix="/api")
+
     # 根路径
     @app.get("/")
     async def root():
