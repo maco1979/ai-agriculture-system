@@ -6,7 +6,8 @@ import {
   MessageSquare, Heart, Share2, Search, PenSquare, Tag,
   ThumbsUp, ChevronDown, ChevronUp, Send, Flame, Clock,
   Star, Sprout, Cpu, FlaskConical, HelpCircle, Bot, Sparkles,
-  RefreshCw, AtSign, Zap, AlertTriangle, Rss,
+  RefreshCw, AtSign, Zap, AlertTriangle, Rss, Terminal, Server,
+  Play, List, Activity, Wifi, WifiOff
 } from 'lucide-react'
 import axios from 'axios'
 
@@ -64,6 +65,14 @@ const EVENT_TYPES = [
   { key: 'high_temperature', label: '高温预警',     icon: '🌡️' },
   { key: 'low_humidity',    label: '干旱预警',     icon: '💧' },
   { key: 'pest_risk',       label: '病虫害风险',   icon: '🐛' },
+]
+
+// 远程执行预设命令
+const REMOTE_PRESETS = [
+  { name: '查看系统状态', command: 'top -b -n 1', desc: '显示系统负载、内存和磁盘使用情况' },
+  { name: '查看磁盘空间', command: 'df -h', desc: '显示磁盘使用情况' },
+  { name: '查看内存使用', command: 'free -h', desc: '显示内存使用情况' },
+  { name: '查看传感器数据', command: 'cat /opt/agriculture/data/latest_readings.json', desc: '获取最新的传感器读数' },
 ]
 
 type SortMode = 'hot' | 'latest'
@@ -167,14 +176,63 @@ export function Community() {
   // 轮询刷新（AI 定时发帖后自动显示新帖）
   const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
+  // 远程执行面板
+  const [showRemotePanel, setShowRemotePanel] = useState(false)
+  const [remoteNodes, setRemoteNodes] = useState<any[]>([])
+  const [remoteCommand, setRemoteCommand] = useState('')
+  const [remoteLoading, setRemoteLoading] = useState(false)
+  const [remoteResult, setRemoteResult] = useState<any>(null)
+  const [selectedNode, setSelectedNode] = useState('')
+
   // ── 初始化 ──
   useEffect(() => {
     fetchAgents()
     fetchPosts()
+    fetchRemoteNodes()
     // 每 60 秒自动刷新一次帖子列表（接收 AI 自动发帖）
     pollTimerRef.current = setInterval(fetchPostsSilent, 60000)
     return () => { if (pollTimerRef.current) clearInterval(pollTimerRef.current) }
   }, [])
+
+  // ── 获取远程节点列表 ──
+  const fetchRemoteNodes = async () => {
+    try {
+      const { data } = await API.get('/community/remote/nodes')
+      setRemoteNodes(data.nodes || [])
+    } catch (e) {
+      console.warn('获取远程节点失败', e)
+    }
+  }
+
+  // ── 执行远程命令 ──
+  const handleRemoteExec = async () => {
+    if (!remoteCommand.trim()) return
+    setRemoteLoading(true)
+    setRemoteResult(null)
+    try {
+      const { data } = await API.post('/community/remote/exec', { command: remoteCommand.trim() })
+      setRemoteResult(data)
+    } catch (e: any) {
+      setRemoteResult({
+        success: false,
+        message: '执行失败',
+        output: e?.response?.data?.detail || e?.message || '未知错误'
+      })
+    } finally {
+      setRemoteLoading(false)
+    }
+  }
+
+  // ── 快速执行预设命令 ──
+  const handlePresetExec = (preset: string, nodeId?: string) => {
+    if (nodeId) {
+      setRemoteCommand(`/preset ${preset} ${nodeId}`)
+    } else if (selectedNode) {
+      setRemoteCommand(`/preset ${preset} ${selectedNode}`)
+    } else {
+      setRemoteCommand(`/preset ${preset} <节点ID>`)
+    }
+  }
 
   const fetchAgents = async () => {
     try {
@@ -357,6 +415,12 @@ export function Community() {
             </span>
           </div>
           <div className="flex items-center gap-2">
+            {/* 远程执行面板按钮 */}
+            <Button variant="outline"
+                    className="border-red-500/40 text-red-400 hover:bg-red-500/10 gap-1.5"
+                    onClick={() => setShowRemotePanel(true)}>
+              <Terminal className="w-4 h-4" /> 远程执行
+            </Button>
             {/* AI 自主发帖按钮 */}
             <Button variant="outline"
                     className="border-tech-primary/40 text-tech-primary hover:bg-tech-primary/10 gap-1.5"
@@ -371,6 +435,120 @@ export function Community() {
         <p className="text-gray-300">发帖时 <span className="text-tech-primary font-mono">@农业专家</span>、
           <span className="text-tech-primary font-mono">@植保顾问</span> 等 AI 角色，他们会自动参与讨论</p>
       </div>
+
+      {/* 远程执行面板弹窗 */}
+      {showRemotePanel && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-tech-dark border border-red-500/30 rounded-2xl p-6 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Terminal className="w-5 h-5 text-red-400" />
+                <h3 className="text-lg font-bold text-white">A2A 远程执行面板</h3>
+              </div>
+              <button onClick={() => setShowRemotePanel(false)} className="text-gray-400 hover:text-white">
+                ✕
+              </button>
+            </div>
+
+            {/* 节点状态 */}
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm text-gray-400 flex items-center gap-1">
+                  <Server className="w-4 h-4" /> 边缘节点 ({remoteNodes.length})
+                </p>
+                <button onClick={fetchRemoteNodes} className="text-xs text-tech-primary hover:underline">
+                  <RefreshCw className="w-3 h-3 inline mr-1" />刷新
+                </button>
+              </div>
+              {remoteNodes.length === 0 ? (
+                <div className="p-4 bg-white/5 rounded-xl text-center text-gray-500 text-sm">
+                  <WifiOff className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  暂无已注册的边缘节点
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {remoteNodes.map(node => (
+                    <button key={node.id}
+                            onClick={() => setSelectedNode(node.id)}
+                            className={`p-3 rounded-xl text-left border transition-all ${
+                              selectedNode === node.id
+                                ? 'border-red-500 bg-red-500/10'
+                                : 'border-white/10 bg-white/5 hover:border-red-500/40'
+                            }`}>
+                      <div className="flex items-center gap-2">
+                        {node.status === 'online' ? (
+                          <Wifi className="w-4 h-4 text-green-400" />
+                        ) : (
+                          <WifiOff className="w-4 h-4 text-gray-500" />
+                        )}
+                        <span className="text-sm font-medium text-white truncate">{node.id}</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1 truncate">{node.address || '无地址'}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 命令输入 */}
+            <div className="mb-4">
+              <p className="text-sm text-gray-400 mb-2 flex items-center gap-1">
+                <Terminal className="w-4 h-4" /> 命令
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="输入命令，如: /nodes, /status edge_001, /exec edge_001 whoami"
+                  className="flex-1 bg-tech-dark/50 border-red-500/30 text-white placeholder:text-gray-500"
+                  value={remoteCommand}
+                  onChange={e => setRemoteCommand(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleRemoteExec()}
+                />
+                <Button variant="tech" onClick={handleRemoteExec} disabled={remoteLoading || !remoteCommand.trim()}>
+                  {remoteLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+                </Button>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                可用命令: <code className="bg-white/10 px-1 rounded">/nodes</code>{' '}
+                <code className="bg-white/10 px-1 rounded">/status {'<节点>'}</code>{' '}
+                <code className="bg-white/10 px-1 rounded">/exec {'<节点>'} {'<命令>'}</code>{' '}
+                <code className="bg-white/10 px-1 rounded">/presets</code>
+              </p>
+            </div>
+
+            {/* 预设命令 */}
+            <div className="mb-4">
+              <p className="text-sm text-gray-400 mb-2 flex items-center gap-1">
+                <List className="w-4 h-4" /> 快速预设
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {REMOTE_PRESETS.map(preset => (
+                  <button key={preset.name}
+                          onClick={() => handlePresetExec(preset.name)}
+                          className="text-xs px-3 py-1.5 bg-white/5 border border-white/10 rounded-full
+                                     hover:border-red-500/40 hover:bg-red-500/5 transition-all text-gray-300">
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 执行结果 */}
+            {remoteResult && (
+              <div className="border-t border-white/10 pt-4">
+                <p className="text-sm text-gray-400 mb-2 flex items-center gap-1">
+                  <Activity className="w-4 h-4" /> 执行结果
+                </p>
+                <div className={`p-4 rounded-xl text-sm font-mono whitespace-pre-wrap max-h-64 overflow-y-auto ${
+                  remoteResult.success ? 'bg-green-500/10 border border-green-500/30 text-green-100' : 'bg-red-500/10 border border-red-500/30 text-red-100'
+                }`}>
+                  <p className="font-bold mb-2">{remoteResult.message}</p>
+                  {remoteResult.output}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* AI 自主发帖弹窗 */}
       {showAIPost && (
@@ -814,6 +992,7 @@ export function Community() {
       <div className="text-center text-xs text-gray-500 py-4 space-y-1">
         <p>帖子数据通过 SQLite 持久化，重启后不丢失</p>
         <p>在内容中输入 <span className="text-tech-primary">@农业专家</span> 等角色名，AI 会在后台自动回复</p>
+        <p>使用 <span className="text-red-400">@远程执行官</span> 或 <span className="text-red-400">远程执行面板</span> 可管理边缘设备</p>
       </div>
     </div>
   )

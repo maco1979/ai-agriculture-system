@@ -10,7 +10,7 @@
 import logging
 from typing import Optional, List
 from fastapi import APIRouter, HTTPException, BackgroundTasks, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.services.community_db import (
     init_db, create_post, get_post, list_posts, like_post,
@@ -165,7 +165,13 @@ async def api_ask_agent(post_id: int, agent_id: str):
     无需在内容中 @，直接点击角色卡片触发
     """
     post = _check_post(post_id)
-    content = await ai_reply(agent_id, post["content"], post["title"])
+    
+    # 远程执行官使用特殊的回复逻辑
+    if agent_id == "远程执行官":
+        content = await ai_remote_reply(post["content"], post["title"])
+    else:
+        content = await ai_reply(agent_id, post["content"], post["title"])
+    
     if content is None:
         raise HTTPException(status_code=503, detail="AI 角色暂时不可用，请检查 API Key 配置")
 
@@ -316,7 +322,111 @@ def api_dialogue_stats(post_id: int):
 @router.get("/categories")
 def api_get_categories():
     """获取所有帖子分类"""
-    return ["种植经验", "AI技术", "科学研究", "提问求助", "病虫害防治", "农业机械", "AI分享", "系统预警"]
+    return ["种植经验", "AI技术", "科学研究", "提问求助", "病虫害防治", "农业机械", "AI分享", "系统预警", "远程执行"]
+
+
+# ────────────────────── A2A 远程执行集成 ──────────────────────
+
+class RemoteExecRequest(BaseModel):
+    """社区内远程执行请求"""
+    command: str = Field(..., description="远程执行命令，如 '/nodes', '/status edge_001'")
+
+
+@router.post("/remote/exec", status_code=200)
+async def api_community_remote_exec(body: RemoteExecRequest):
+    """
+    在社区内执行远程命令（不创建帖子，直接返回结果）
+    用于快捷执行面板
+    """
+    cmd_type, params = parse_remote_command(body.command)
+    
+    if not cmd_type:
+        raise HTTPException(
+            status_code=400,
+            detail="无法识别的命令格式。可用命令: /nodes, /status <节点>, /exec <节点> <命令>, /batch <命令>, /presets, /preset <预设> <节点>"
+        )
+    
+    result = await execute_remote_command_by_ai(cmd_type, params)
+    return result
+
+
+@router.get("/remote/nodes")
+async def api_community_remote_nodes():
+    """获取所有边缘节点列表（社区视图）"""
+    from src.services.community_remote import NODE_REGISTRY
+    
+    nodes = []
+    for node_id, info in NODE_REGISTRY.items():
+        nodes.append({
+            "id": node_id,
+            "name": info.get("node_name", node_id),
+            "address": info.get("address", ""),
+            "status": info.get("status", "unknown"),
+            "last_heartbeat": info.get("last_heartbeat"),
+            "capabilities": info.get("capabilities", {}),
+        })
+    
+    return {
+        "total": len(nodes),
+        "nodes": nodes
+    }
+
+
+@router.get("/remote/presets")
+async def api_community_remote_presets():
+    """获取预设命令列表（社区视图）"""
+    from src.api.routes.remote_execution import SYSTEM_COMMAND_PRESETS
+    
+    presets = []
+    for p in SYSTEM_COMMAND_PRESETS:
+        presets.append({
+            "name": p.name,
+            "description": p.description,
+            "command": p.command,
+            "args": p.args,
+            "permission_level": p.permission_level,
+            "timeout": p.timeout,
+        })
+    
+    return {
+        "total": len(presets),
+        "presets": presets
+    }
+
+
+@router.post("/posts/{post_id}/remote-exec", status_code=201)
+async def api_post_remote_exec(post_id: int, body: RemoteExecRequest):
+    """
+    在帖子内执行远程命令并记录结果
+    执行结果会作为回复添加到帖子中
+    """
+    post = _check_post(post_id)
+    
+    cmd_type, params = parse_remote_command(body.command)
+    
+    if not cmd_type:
+        raise HTTPException(
+            status_code=400,
+            detail="无法识别的命令格式"
+        )
+    
+    # 执行命令
+    result = await execute_remote_command_by_ai(cmd_type, params)
+    
+    # 构建回复内容
+    reply_content = f"🖥️ **远程执行**: `{body.command}`\n\n{result['message']}\n\n{result['output']}"
+    
+    # 创建回复
+    reply = create_reply(
+        post_id=post_id,
+        user="🖥️ 远程执行官",
+        avatar="https://ui-avatars.com/api/?name=🖥️&background=dc2626&color=fff&size=64",
+        content=reply_content,
+        is_ai=True,
+        ai_role_id="远程执行官",
+    )
+    
+    return reply
 
 
 # ────────────────────── 内部工具 ──────────────────────
@@ -334,7 +444,12 @@ async def _trigger_ai_replies(post_id: int, post_title: str,
     from src.services.community_agents import AI_AGENTS
     for role_id in role_ids:
         try:
-            content = await ai_reply(role_id, trigger_content, post_title)
+            # 远程执行官使用特殊的回复逻辑
+            if role_id == "远程执行官":
+                content = await ai_remote_reply(trigger_content, post_title)
+            else:
+                content = await ai_reply(role_id, trigger_content, post_title)
+            
             if content:
                 agent = AI_AGENTS.get(role_id, {})
                 avatar = f"https://ui-avatars.com/api/?name={agent.get('emoji','AI')}&background={agent.get('avatar_bg','16a34a')}&color=fff&size=64"

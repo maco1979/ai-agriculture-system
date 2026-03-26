@@ -28,6 +28,13 @@ from .health import router as health_router
 from .chat import router as chat_router
 from .provenance import router as provenance_router
 
+# 导入任务路由
+try:
+    from .tasks import router as tasks_router
+except ImportError as e:
+    print(f"任务路由导入失败: {e}")
+    tasks_router = None
+
 # 导入用户路由
 try:
     from .user import router as user_router
@@ -48,7 +55,14 @@ try:
 except ImportError as e:
     blockchain_router = None
 
-__all__ = ["models_router", "inference_router", "training_router", "system_router", "edge_router", "blockchain_router", "federated_router", "agriculture_router", "decision_router", "model_training_decision_router", "resource_decision_router", "decision_monitoring_router", "camera_router", "performance_router", "ai_control_router", "auth_router", "jepa_dtmpc_router", "community_router", "monitoring_router", "fine_tune_router", "cloud_ai_router", "health_router", "chat_router", "provenance_router", "tasks_router"]
+# 导入远程执行路由
+try:
+    from .remote_execution import router as remote_execution_router
+except ImportError as e:
+    print(f"远程执行路由导入失败: {e}")
+    remote_execution_router = None
+
+__all__ = ["models_router", "inference_router", "training_router", "system_router", "edge_router", "blockchain_router", "federated_router", "agriculture_router", "decision_router", "model_training_decision_router", "resource_decision_router", "decision_monitoring_router", "camera_router", "performance_router", "ai_control_router", "auth_router", "jepa_dtmpc_router", "community_router", "monitoring_router", "fine_tune_router", "cloud_ai_router", "health_router", "chat_router", "provenance_router", "remote_execution_router"]
 
 # 动态添加user_router（如果导入成功）
 if user_router is not None:
@@ -57,3 +71,11 @@ if user_router is not None:
 # 动态添加enterprise_router（如果导入成功）
 if enterprise_router is not None:
     __all__.append("enterprise_router")
+
+# 动态添加tasks_router（如果导入成功）
+if tasks_router is not None:
+    __all__.append("tasks_router")
+
+# 动态添加remote_execution_router（如果导入成功）
+if remote_execution_router is not None:
+    __all__.append("remote_execution_router")
