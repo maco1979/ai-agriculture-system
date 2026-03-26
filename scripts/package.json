@@ -1,0 +1,20 @@
+{
+  "name": "ai-agriculture-screenshots",
+  "version": "1.0.0",
+  "description": "自动化截图工具 - AI农业决策系统界面截图",
+  "main": "take-screenshots.js",
+  "scripts": {
+    "screenshot": "node take-screenshots.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "screenshot",
+    "puppeteer",
+    "ai-agriculture"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^21.0.0"
+  }
+}
