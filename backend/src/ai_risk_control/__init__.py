@@ -9,5 +9,5 @@ AI自主决策风险控制系统
 - 紧急停止与熔断机制
 """
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 __author__ = "AI Risk Control Team"
