@@ -8,7 +8,7 @@
 - 资源优化调度
 """
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 __author__ = "AI农业平台团队"
 
 from .model_lightweight import ModelLightweightProcessor, ModelLightweight
